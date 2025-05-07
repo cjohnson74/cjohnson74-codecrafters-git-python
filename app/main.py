@@ -16,6 +16,12 @@ def main():
         with open(".git/HEAD", "w") as f:
             f.write("ref: refs/heads/main\n")
         print("Initialized git directory")
+    elif command == "cat-file":
+        blob = sys.argv.index("-p") + 1
+        print(f"blob: {blob}")
+        folder = blob[:2]
+        file = blob[2:]
+        print(f"folder: {folder}, file: {file}")
     else:
         raise RuntimeError(f"Unknown command #{command}")
 
