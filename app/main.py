@@ -1,5 +1,6 @@
 import sys
 import os
+import zlib
 
 
 def main():
@@ -23,7 +24,7 @@ def main():
         file = blob[2:]
         print(f"folder: {folder}, file: {file}")
         with open(f".git/objects/{folder}/{file}") as blob_file:
-            contents = blob_file.read()
+            contents = zlib.decompress(blob_file.read())
             print(f"contents: {contents}")
     else:
         raise RuntimeError(f"Unknown command #{command}")
