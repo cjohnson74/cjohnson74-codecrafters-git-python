@@ -23,7 +23,7 @@ def main():
         folder = blob[:2]
         file = blob[2:]
         print(f"folder: {folder}, file: {file}")
-        with open(f".git/objects/{folder}/{file}") as blob_file:
+        with open(f".git/objects/{folder}/{file}", "rb") as blob_file:
             contents = zlib.decompress(blob_file).read()
             print(f"contents: {contents}")
     else:
