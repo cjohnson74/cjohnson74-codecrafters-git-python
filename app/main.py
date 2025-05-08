@@ -12,8 +12,8 @@ def cat_file(blob):
         print(contents)
         contents = zlib.decompress(contents)
         print(contents)
-        # contents = contents.decode("utf-8")
-        # print(contents)
+        contents = contents.decode("utf-8")
+        print(contents)
         type = contents.split(" ")[0]
         content = contents.split("\0")[1]
         return (type, content)
