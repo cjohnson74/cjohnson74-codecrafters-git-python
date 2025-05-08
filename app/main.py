@@ -24,8 +24,8 @@ def main():
         file = blob[2:]
         print(f"folder: {folder}, file: {file}")
         with open(f".git/objects/{folder}/{file}", "rb") as blob_file:
-            contents = zlib.decompress(blob_file.read())
-            print(f"contents: {contents.decode("utf-8")}")
+            contents = zlib.decompress(blob_file.read()).decode("utf-8")
+            print(f"contents: {contents}")
             type = contents.split(" ")[0]
             content = contents.split("\0")[1]
             print(f"type: {type}")
