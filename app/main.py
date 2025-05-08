@@ -33,7 +33,7 @@ def main():
             data = file.read()
             blob_object = f"blob {len(data)}\0{data}"
             sha = hashlib.sha1(blob_object.encode("utf-8")).hexdigest()
-            with open(f".git/objects/{sha[:2]}/{sha[2:]}") as file:
+            with open(f".git/objects/{sha[:2]}/{sha[2:]}", "w") as file:
                 file.write(zlib.compress(blob_object))
             print(sha)
     else:
