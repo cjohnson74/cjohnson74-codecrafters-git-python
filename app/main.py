@@ -48,7 +48,7 @@ def main():
         sha = hash_object(file)
         print(sha)
     elif command == "ls-tree":
-        tree_sha = sys.argv[sys.argv.index("--name_only") + 1]
+        tree_sha = sys.argv[sys.argv.index("--name-only") + 1]
         (type, content) = cat_file(tree_sha)
         print(f"type: {type}, contents: {content}")
     else:
