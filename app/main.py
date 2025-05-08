@@ -35,7 +35,7 @@ def main():
             sha = hashlib.sha1(blob_object.encode("utf-8")).hexdigest()
             file_path = f".git/objects/{sha[:2]}/{sha[2:]}"
             os.makedirs(os.path.dirname(file_path))
-            with open(file_path) as file:
+            with open(file_path, "w") as file:
                 file.write(zlib.compress(blob_object))
             print(sha)
     else:
