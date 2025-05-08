@@ -3,22 +3,50 @@ import os
 import zlib
 import hashlib
 
-def cat_file(blob):
+def
+
+def read_obj(blob):
     folder = blob[:2]
     file = blob[2:]
     print(f"folder: {folder}, file: {file}")
     with open(f".git/objects/{folder}/{file}", "rb") as blob_file:
-        contents = blob_file.read()
-        print(contents)
+        data = blob_file.read()
+        data = zlib.decompress(data)
+        null_pos = data.index(b' ')
+        content = data[null_pos + 1:]
+        print(content)
+        index = 0
+        entries = []
+        
+        while index < len(content):
+            space_pos = content.find(b' ', index)
+            file_mode = content[index:space_pos].decode("utf-8")
+            index = space_pos + 1
+            
+            null_pos = content.find(b'\0', index)
+            file_name = content[index:null_pos].decode("utf-8")
+            index = null_pos + 1
+            
+            raw_sha = content[index:index + 20]
+            sha_hex = raw_sha.hex()
+            index += 20
+            
+            entries.append({
+                "mode": file_mode,
+                "name": file_name,
+                "sha": sha_hex
+            })
+        return entries
+            
         contents = zlib.decompress(contents)
         print(contents)
-        contents = contents.decode("utf-8")
-        print(contents)
+        # contents = contents.decode("utf-8")
+        # print(contents)
         type = contents.split(" ")[0]
         content = contents.split("\0")[1]
         return (type, content)
     
-def hash_object(file):
+def write_obj(file):
     with open(file) as file:
         data = file.read()
         blob_object = f"blob {len(data)}\0{data}"
@@ -47,15 +75,15 @@ def main():
         print("Initialized git directory")
     elif command == "cat-file":
         blob = sys.argv[sys.argv.index("-p") + 1]
-        (type, content) = cat_file(blob)
+        (type, content) = read_obj(blob)
         print(content, end="")
     elif command == "hash-object":
         file = sys.argv[sys.argv.index("-w") + 1]
-        sha = hash_object(file)
+        sha = write_obj(file)
         print(sha)
     elif command == "ls-tree":
         tree_sha = sys.argv[sys.argv.index("--name-only") + 1]
-        (type, content) = cat_file(tree_sha)
+        (type, content) = read_obj(tree_sha)
         print(f"type: {type}, contents: {content}")
     else:
         raise RuntimeError(f"Unknown command #{command}")
