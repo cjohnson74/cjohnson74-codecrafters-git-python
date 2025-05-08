@@ -25,7 +25,7 @@ def main():
             contents = zlib.decompress(blob_file.read()).decode("utf-8")
             type = contents.split(" ")[0]
             content = contents.split("\0")[1]
-            print(content)
+            print(content, end="")
     else:
         raise RuntimeError(f"Unknown command #{command}")
 
