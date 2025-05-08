@@ -25,36 +25,29 @@ def hash_object(file):
         return sha
     
 def read_tree_object(blob):
-    folder = blob[:2]
-    file = blob[2:]
-    with open(f".git/objects/{folder}/{file}", "rb") as blob_file:
-        data = blob_file.read()
-        data = zlib.decompress(data)
-        null_pos = data.index(b' ')
-        content = data[null_pos + 1:]
+    (type, content) = cat_file(blob)
+    index = 0
+    entries = []
+    
+    while index < len(content):
+        space_pos = content.find(b' ', index)
+        file_mode = content[index:space_pos].decode("utf-8")
+        index = space_pos + 1
         
-        index = 0
-        entries = []
+        null_pos = content.find(b'\0', index)
+        file_name = content[index:null_pos].decode("utf-8")
+        index = null_pos + 1
         
-        while index < len(content):
-            space_pos = content.find(b' ', index)
-            file_mode = content[index:space_pos].decode("utf-8")
-            index = space_pos + 1
-            
-            null_pos = content.find(b'\0', index)
-            file_name = content[index:null_pos].decode("utf-8")
-            index = null_pos + 1
-            
-            raw_sha = content[index:index + 20]
-            sha_hex = raw_sha.hex()
-            index += 20
-            
-            entries.append({
-                "mode": file_mode,
-                "name": file_name,
-                "sha": sha_hex
-            })
-        return entries
+        raw_sha = content[index:index + 20]
+        sha_hex = raw_sha.hex()
+        index += 20
+        
+        entries.append({
+            "mode": file_mode,
+            "name": file_name,
+            "sha": sha_hex
+        })
+    return entries
 
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
