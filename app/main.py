@@ -9,7 +9,7 @@ def cat_file(blob):
     print(f"folder: {folder}, file: {file}")
     with open(f".git/objects/{folder}/{file}", "rb") as blob_file:
         contents = blob_file.read()
-        contents = zlib.decompress(contents).decond("utf-8")
+        contents = zlib.decompress(contents).decode("utf-8")
         type = contents.split(" ")[0]
         content = contents.split("\0")[1]
         return (type, content)
