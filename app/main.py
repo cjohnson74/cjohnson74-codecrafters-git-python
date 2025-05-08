@@ -28,7 +28,7 @@ def hash_object(file):
 def read_tree_object(blob):
     folder = blob[:2]
     file = blob[2:]
-    print(f"folder: {folder}, file: {file}")
+    # print(f"folder: {folder}, file: {file}")
     with open(f".git/objects/{folder}/{file}", "rb") as blob_file:
         data = blob_file.read()
         data = zlib.decompress(data)
@@ -41,17 +41,17 @@ def read_tree_object(blob):
         while index < len(content):
             space_pos = content.find(b' ', index)
             file_mode = content[index:space_pos].decode("utf-8")
-            print(file_mode)
+            # print(file_mode)
             index = space_pos + 1
             
             null_pos = content.find(b'\0', index)
             file_name = content[index:null_pos].decode("utf-8")
-            print(file_name)
+            # print(file_name)
             index = null_pos + 1
             
             raw_sha = content[index:index + 20]
             sha_hex = raw_sha.hex()
-            print(sha_hex)
+            # print(sha_hex)
             index += 20
             
             entries.append({
