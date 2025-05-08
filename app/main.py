@@ -26,6 +26,10 @@ def main():
         with open(f".git/objects/{folder}/{file}", "rb") as blob_file:
             contents = zlib.decompress(blob_file.read())
             print(f"contents: {contents.decode("utf-8")}")
+            type = contents.split(" ")[0]
+            content = contents.split("\0")[1]
+            print(f"type: {type}")
+            print(f"content: {content}")
     else:
         raise RuntimeError(f"Unknown command #{command}")
 
