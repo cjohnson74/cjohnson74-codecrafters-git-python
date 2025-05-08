@@ -87,7 +87,7 @@ def main():
         tree_sha = sys.argv[sys.argv.index("--name-only") + 1]
         entries = read_tree_object(tree_sha)
         for entry in entries:
-            print(entry.name)
+            print(entry['name'])
     else:
         raise RuntimeError(f"Unknown command #{command}")
 
