@@ -3,8 +3,6 @@ import os
 import zlib
 import hashlib
 
-def
-
 def read_obj(blob):
     folder = blob[:2]
     file = blob[2:]
@@ -21,14 +19,17 @@ def read_obj(blob):
         while index < len(content):
             space_pos = content.find(b' ', index)
             file_mode = content[index:space_pos].decode("utf-8")
+            print(file_mode)
             index = space_pos + 1
             
             null_pos = content.find(b'\0', index)
             file_name = content[index:null_pos].decode("utf-8")
+            print(file_name)
             index = null_pos + 1
             
             raw_sha = content[index:index + 20]
             sha_hex = raw_sha.hex()
+            print(sha_hex)
             index += 20
             
             entries.append({
