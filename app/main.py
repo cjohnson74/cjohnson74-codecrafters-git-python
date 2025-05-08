@@ -9,11 +9,7 @@ def cat_file(blob):
     print(f"folder: {folder}, file: {file}")
     with open(f".git/objects/{folder}/{file}", "rb") as blob_file:
         contents = blob_file.read()
-        print(contents)
-        contents = zlib.decompress(contents)
-        print(contents)
-        contents = contents.decode("utf-8")
-        print(contents)
+        contents = zlib.decompress(contents).decond("utf-8")
         type = contents.split(" ")[0]
         content = contents.split("\0")[1]
         return (type, content)
@@ -38,7 +34,7 @@ def read_tree_object(blob):
         data = zlib.decompress(data)
         null_pos = data.index(b' ')
         content = data[null_pos + 1:]
-        print(content)
+        
         index = 0
         entries = []
         
@@ -90,7 +86,8 @@ def main():
     elif command == "ls-tree":
         tree_sha = sys.argv[sys.argv.index("--name-only") + 1]
         entries = read_tree_object(tree_sha)
-        print(f"type: {type}, contents: {content}")
+        for entry in entries:
+            print(entry.name)
     else:
         raise RuntimeError(f"Unknown command #{command}")
 
