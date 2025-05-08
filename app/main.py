@@ -6,8 +6,12 @@ import hashlib
 def cat_file(blob):
     folder = blob[:2]
     file = blob[2:]
+    print(f"folder: {folder}, file: {file}")
     with open(f".git/objects/{folder}/{file}", "rb") as blob_file:
-        contents = zlib.decompress(blob_file.read()).decode("utf-8")
+        contents = blob_file.read()
+        print(contents)
+        contents = zlib.decompress(contents).decode("utf-8")
+        print(contents)
         type = contents.split(" ")[0]
         content = contents.split("\0")[1]
         return (type, content)
