@@ -25,7 +25,7 @@ def main():
         print(f"folder: {folder}, file: {file}")
         with open(f".git/objects/{folder}/{file}", "rb") as blob_file:
             contents = zlib.decompress(blob_file.read())
-            print(f"contents: {contents}")
+            print(f"contents: {contents.decode("utf-8")}")
     else:
         raise RuntimeError(f"Unknown command #{command}")
 
