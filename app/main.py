@@ -49,7 +49,7 @@ def main():
         print(sha)
     elif command == "ls-tree":
         tree_sha = sys.argv[sys.argv.index("ls-tree") + 1]
-        (type, content) = hash_object(tree_sha)
+        (type, content) = cat_file(tree_sha)
         print(f"type: {type}, contents: {content}")
     else:
         raise RuntimeError(f"Unknown command #{command}")
