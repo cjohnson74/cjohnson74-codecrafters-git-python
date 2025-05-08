@@ -36,7 +36,7 @@ def main():
             file_path = f".git/objects/{sha[:2]}/{sha[2:]}"
             os.makedirs(os.path.dirname(file_path))
             with open(file_path, "w") as file:
-                file.write(zlib.compress(blob_object).encode("utf-8"))
+                file.write(zlib.compress(blob_object.encode("utf-8")))
             print(sha)
     else:
         raise RuntimeError(f"Unknown command #{command}")
