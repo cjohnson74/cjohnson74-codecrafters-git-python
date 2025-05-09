@@ -72,7 +72,7 @@ def write_tree(dir):
                 "name": dirname,
                 "sha": write_tree(f"{dirpath}/{dirname}")
             }
-            print(f"{entry.mode} {entry.name}\0{entry.sha}")
+            print(f"{entry["mode"]} {entry["name"]}\0{entry["sha"]}")
             entries.append(entry)
         for filename in filenames:
             print(f"    File: {filename}")
