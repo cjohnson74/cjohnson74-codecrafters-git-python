@@ -85,8 +85,8 @@ def write_tree(dir, visited_dirs=None):
             # print(f'{entry["mode"]} {entry["name"]}\0 {entry["sha"]}')
             entries.append(entry)
         for filename in filenames:
-            print(f"    File: {filename}")
-            print(f"{dirpath}/{filename}")
+            # print(f"    File: {filename}")
+            # print(f"{dirpath}/{filename}")
             entry = {
                 "mode": "100644",
                 "name": filename,
