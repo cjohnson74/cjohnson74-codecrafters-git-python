@@ -55,6 +55,15 @@ def read_tree_object(sha):
                 "sha": sha_hex
             })
         return entries
+    
+def write_tree():
+    for dirpath, dirnames, filenames in os.walk(os.getcwd()):
+        print(f"Directory: {dirpath}")
+        for dirname in dirnames:
+            print(f"    Subdirectory: {dirname}")
+        for filename in filenames:
+            print(f"    File: {filename}")
+        
 
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -83,6 +92,8 @@ def main():
         entries = read_tree_object(tree_sha)
         for entry in entries:
             print(entry['name'])
+    elif command == "write-tree":
+        return write_tree()
     else:
         raise RuntimeError(f"Unknown command #{command}")
 
