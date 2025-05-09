@@ -139,6 +139,9 @@ def main():
         commit_message = sys.argv[sys.argv.index("-m") + 1]
         commit_sha = write_commit(tree_sha, parent_commit_sha, commit_message)
         print(commit_sha)
+    elif command == "clone":
+        git_url, dir = sys.argv[sys.argv.index(command) + 1:]
+        print(git_url, dir)
     else:
         raise RuntimeError(f"Unknown command #{command}")
 
