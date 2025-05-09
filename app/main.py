@@ -88,9 +88,9 @@ def write_commit(tree_sha, parent_commit_sha, commit_message):
     data = []
     data.append("tree " + tree_sha)
     data.append("parent " + parent_commit_sha)
-    data.append(f"author {USER_NAME} <{USER_EMAIL}> {str(current_time.timestamp())} {str(current_time.astimezone().tzinfo)}")
+    data.append(f"author {bytes(USER_NAME, 'utf-8')} <{bytes(USER_EMAIL)}> {bytes(current_time.timestamp())} {bytes(current_time.astimezone().tzinfo)}")
     data.append(f"committer {USER_NAME} <{USER_EMAIL}> {str(current_time.timestamp())} {str(current_time.astimezone().tzinfo)}")
-    data = b"".join(data)
+    data = "".join(data)
     commit_sha = hash_object(data, obj_type="commit", write=True)
     return commit_sha
     
