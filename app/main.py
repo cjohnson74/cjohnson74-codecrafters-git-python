@@ -16,7 +16,8 @@ def read_blob_object(sha):
 def hash_object(file):
     with open(file) as file:
         data = file.read()
-        blob_object = f"blob {len(data)}\0{data}"
+        data_len = len(data)
+        blob_object = f"blob {data_len}\0{data}"
         print(f"data: {data}")
         print(f"blob_obj: {blob_object}")
         sha = hashlib.sha1(blob_object.encode("utf-8")).hexdigest()
