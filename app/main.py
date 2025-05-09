@@ -61,12 +61,17 @@ def read_tree_object(sha):
             })
         return entries
     
-def write_tree(dir):
+def write_tree(dir, visited_dirs=None):
+    if visited_dirs is None:
+        visited_dirs = set()
+    real_path = os.path.realpath(dir)
+    if real_path in visited_dirs:
+        raise RuntimeError(f"Circular directory structure detected: {real_path}")
+    visited_dirs.add(real_path)
     print(f"cwd: {dir}")
     entries = []
-    for dirpath, dirnames, filenames in os.walk(dir):
-        if ".git" in dirpath:
-            continue
+    for dirpath, dirnames, filenames in os.walk(dir, topdown=True):
+        dirnames[:] = [d for d in dirnames if d != ".git"]
         print(f"Directory: {dirpath}")
         for dirname in dirnames:
             if ".git" in dirname:
@@ -75,9 +80,9 @@ def write_tree(dir):
             entry = {
                 "mode": "040000",
                 "name": dirname,
-                "sha": write_tree(f"{dirpath}/{dirname}")
+                "sha": write_tree(f"{dirpath}/{dirname}", visited_dirs)
             }
-            # print(f"{entry["mode"]} {entry["name"]}\0 {entry["sha"]}")
+            # print(f'{entry["mode"]} {entry["name"]}\0 {entry["sha"]}')
             entries.append(entry)
         for filename in filenames:
             print(f"    File: {filename}")
@@ -89,7 +94,7 @@ def write_tree(dir):
             }
             # print(f"{entry["mode"]} {entry["name"]}\0 {entry["sha"]}")
             entries.append(entry)
-    data = "".join([f"{entry["mode"]} {entry["name"]}\0 {entry["sha"]}" for entry in entries])
+    data = "".join([f"{entry['mode']} {entry['name']}\0".encode("utf-8") + bytes.fromhex(entry['sha']) for entry in entries])
     print(f"data: {repr(data)}")
     header = f"tree {len(data)}\0"
     print(f"header: {repr(header)}")
