@@ -2,6 +2,10 @@ import sys
 import os
 import zlib
 import hashlib
+from datetime import datetime
+
+USER_NAME="cjohnson74"
+USER_EMAIL="cjohnson74@gmail.com"
 
 def read_blob_object(sha):
     folder = sha[:2]
@@ -78,7 +82,18 @@ def write_tree(directory):
         
     tree_content = b"".join(entries)
     return hash_object(tree_content, obj_type="tree")
-        
+
+def write_commit(tree_sha, parent_commit_sha, commit_message):
+    current_time = datetime.now()
+    data = []
+    data.append("tree " + tree_sha)
+    data.append("parent " + parent_commit_sha)
+    data.append(f"author {USER_NAME} <{USER_EMAIL}> {str(current_time.timestamp())} {str(current_time.astimezone().tzinfo)}")
+    data.append(f"committer {USER_NAME} <{USER_EMAIL}> {str(current_time.timestamp())} {str(current_time.astimezone().tzinfo)}")
+    data = b"".join(data)
+    commit_sha = hash_object(data, obj_type="commit", write=True)
+    return commit_sha
+    
 
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -113,6 +128,11 @@ def main():
         working_dir = os.getcwd()
         tree_sha = write_tree(working_dir)
         print(tree_sha)
+    elif command == "commit-tree":
+        tree_sha = sys.argv[sys.argv.index(command) + 1]
+        parent_commit_sha = sys.argv[sys.argv.index("-p") + 1]
+        commit_message = sys.arv[sys.argv.index("-m") + 1]
+        commit_sha = write_commit(tree_sha, parent_commit_sha, commit_message)
     else:
         raise RuntimeError(f"Unknown command #{command}")
 
