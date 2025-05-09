@@ -17,10 +17,10 @@ def hash_object(file):
     with open(file) as file:
         data = file.read()
         blob_object = f"blob {len(data)}\0{data}"
-        sha = hashlib.sha1(blob_object.encode("utf-8")).hexdigest()
-        file_path = f".git/objects/{sha[:2]}/{sha[2:]}"
         print(f"data: {data}")
         print(f"blob_obj: {blob_object}")
+        sha = hashlib.sha1(blob_object.encode("utf-8")).hexdigest()
+        file_path = f".git/objects/{sha[:2]}/{sha[2:]}"
         print(f"file_path: {file_path}")
         os.makedirs(os.path.dirname(file_path))
         with open(file_path, "wb") as file:
