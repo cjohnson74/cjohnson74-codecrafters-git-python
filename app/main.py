@@ -64,6 +64,8 @@ def read_tree_object(sha):
 def write_tree(directory):
     entries = []
     for entry in sorted(os.listdir(directory)):
+        if ".git" in entry:
+            continue
         entry_path = os.path.join(directory, entry)
         if os.path.isdir(entry_path):
             mode = "40000"
