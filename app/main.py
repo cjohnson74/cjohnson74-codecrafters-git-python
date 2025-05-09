@@ -13,7 +13,7 @@ def read_blob_object(sha):
         content = contents.split("\0")[1]
         return (type, content)
     
-def hash_object(file, obj_type="blob", write=True):
+def hash_object(data, obj_type="blob", write=True):
     header = f"{obj_type} {len(data)}\0".encode()
     full_data = header + data
     sha = hashlib.sha1(full_data).hexdigest()
