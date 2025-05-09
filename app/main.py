@@ -133,6 +133,7 @@ def main():
         parent_commit_sha = sys.argv[sys.argv.index("-p") + 1]
         commit_message = sys.argv[sys.argv.index("-m") + 1]
         commit_sha = write_commit(tree_sha, parent_commit_sha, commit_message)
+        print(commit_sha)
     else:
         raise RuntimeError(f"Unknown command #{command}")
 
