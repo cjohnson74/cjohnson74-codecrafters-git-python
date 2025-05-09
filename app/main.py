@@ -88,8 +88,8 @@ def write_tree(dir, visited_dirs=None):
     object_path = os.path.join(object_dir, tree_sha[2:])
     os.makedirs(object_dir, exist_ok=True)
     with open(object_path, "wb") as file:
-        file.write(tree_object)
-    
+        file.write(zlib.compress(tree_object))
+
     return tree_sha
         
 
