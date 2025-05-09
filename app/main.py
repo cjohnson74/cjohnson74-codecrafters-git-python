@@ -68,15 +68,15 @@ def write_tree(dir, visited_dirs=None):
     if real_path in visited_dirs:
         raise RuntimeError(f"Circular directory structure detected: {real_path}")
     visited_dirs.add(real_path)
-    print(f"cwd: {dir}")
+    # print(f"cwd: {dir}")
     entries = []
     for dirpath, dirnames, filenames in os.walk(dir, topdown=True):
         dirnames[:] = [d for d in dirnames if d != ".git"]
-        print(f"Directory: {dirpath}")
+        # print(f"Directory: {dirpath}")
         for dirname in dirnames:
             if ".git" in dirname:
                 continue
-            print(f"    Subdirectory: {dirname}")
+            # print(f"    Subdirectory: {dirname}")
             entry = {
                 "mode": "040000",
                 "name": dirname,
