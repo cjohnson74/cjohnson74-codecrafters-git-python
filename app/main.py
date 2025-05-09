@@ -67,18 +67,22 @@ def write_tree(dir):
             if ".git" in dirname:
                 continue
             print(f"    Subdirectory: {dirname}")
-            entries.append({
+            entry = {
                 "mode": "040000",
                 "name": dirname,
                 "sha": write_tree(f"{dirpath}/{dirname}")
-            })
+            }
+            f"{entry.mode} {entry.name}\0{entry.sha}"
+            entries.append(entry)
         for filename in filenames:
             print(f"    File: {filename}")
-            entries.append({
+            entry = {
                 "mode": "100644",
                 "name": filename,
                 "sha": hash_object(f"{dirpath}/{filename}")
-            })
+            }
+            f"{entry.mode} {entry.name}\0{entry.sha}"
+            entries.append(entry)
     data = "".join([f"{entry.mode} {entry.name}\0{entry.sha}" for entry in entries])
     print(f"data: {data}")
     header = f"tree {len(data)}\0"
