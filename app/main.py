@@ -70,7 +70,7 @@ def write_tree(dir):
             entries.append({
                 "mode": "040000",
                 "name": dirname,
-                "sha": write_tree(dirpath+dirname)
+                "sha": write_tree(f"{dirpath}/{dirname}")
             })
         for filename in filenames:
             print(f"    File: {filename}")
