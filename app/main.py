@@ -56,8 +56,10 @@ def read_tree_object(sha):
             })
         return entries
     
-def write_tree():
-    for dirpath, dirnames, filenames in os.walk(os.getcwd()):
+def write_tree(dir):
+    print(dir)
+    entries = []
+    for dirpath, dirnames, filenames in os.walk():
         if ".git" in dirpath:
             continue
         print(f"Directory: {dirpath}")
@@ -65,8 +67,27 @@ def write_tree():
             if ".git" in dirname:
                 continue
             print(f"    Subdirectory: {dirname}")
+            entries.append({
+                "mode": "040000",
+                "name": dirname,
+                "sha": write_tree(dirpath+dirname)
+            })
         for filename in filenames:
             print(f"    File: {filename}")
+            entries.append({
+                "mode": "100644",
+                "name": filename,
+                "sha": hash_object(filename)
+            })
+    data = "".join([f"{entry.mode} {entry.name}\0{entry.sha}" for entry in entries])
+    print(f"data: {data}")
+    header = f"tree {len(data)}\0"
+    print(f"header: {header}")
+    file_content = header + data
+    print(f"file_content: {file_conent}")
+    sha = hashlib.sha1(file_content.encode("utf-8")).hexdigest()
+    print(f"sha: {sha}")
+    return sha
         
 
 def main():
@@ -97,7 +118,8 @@ def main():
         for entry in entries:
             print(entry['name'])
     elif command == "write-tree":
-        return write_tree()
+        working_dir = os.getcwd()
+        return write_tree(working_dir)
     else:
         raise RuntimeError(f"Unknown command #{command}")
 
