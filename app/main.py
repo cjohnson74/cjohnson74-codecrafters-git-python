@@ -13,21 +13,21 @@ def read_blob_object(sha):
         content = contents.split("\0")[1]
         return (type, content)
     
-def hash_object(file):
-    with open(file) as file:
-        data = file.read()
-        data_len = len(data)
-        blob_object = f"blob {data_len}\0{data}"
-        # print(f"data: {data}")
-        # print(f"blob_obj: {repr(blob_object)}")
-        sha = hashlib.sha1(blob_object.encode("utf-8")).hexdigest()
-        file_path = f".git/objects/{sha[:2]}/{sha[2:]}"
-        # print(f"file_path: {file_path}")
-        dir_path = os.path.dirname(file_path)
-        os.makedirs(dir_path, exist_ok=True)
-        with open(file_path, "wb") as file:
-            file.write(zlib.compress(blob_object.encode("utf-8")))
-        return sha
+def hash_object(file, obj_type="blob", write=True):
+    header = f"{obj_type} {len(data)}\0".encode()
+    full_data = header + data
+    sha = hashlib.sha1(full_data).hexdigest()
+    
+    if write:
+        object_dir = os.path.join(".git", "objects", sha[:2])
+        object_path = os.path.join(object_dir, sha[2:])
+        if not os.path.exists(object_path):
+            os.makedirs(object_dir, exist_ok=True)
+            with open(object_path, "wb") as file:
+                file.write(zlib.compress(full_data))
+    
+            
+    return sha
     
 def read_tree_object(sha):
     folder = sha[:2]
@@ -61,10 +61,10 @@ def read_tree_object(sha):
             })
         return entries
     
-def write_tree(dir, visited_dirs=None):
+def write_tree(directory):
     entries = []
-    for entry in sorted(os.listdir(dir)):
-        entry_path = os.path.join(dir, entry)
+    for entry in sorted(os.listdir(directory)):
+        entry_path = os.path.join(directory, entry)
         if os.path.isdir(entry_path):
             mode = "40000"
             sha = write_tree(entry_path)
@@ -72,25 +72,12 @@ def write_tree(dir, visited_dirs=None):
             mode = "100644"
             with open(entry_path, "rb") as file:
                 content = file.read()
-            sha = hashlib.sha1(b"blob " + str(len(content)).encode() + b"\0" + content).hexdigest()
+            sha = hash_object(content, obj_type="blob")
         
-        entries.append((mode, entry, bytes.fromhex(sha)))
+        entries.append(f"{mode} {entry}\0".encode() + bytes.fromhex(sha))
         
-    tree_content = b"".join(
-        f"{mode} {name}\0".encode() + sha for mode, name, sha in entries
-    )
-    tree_header = f"tree {len(tree_content)}\0".encode()
-    tree_object = tree_header + tree_content
-    
-    tree_sha = hashlib.sha1(tree_object).hexdigest()
-    
-    object_dir = os.path.join(".git", "objects", tree_sha[:2])
-    object_path = os.path.join(object_dir, tree_sha[2:])
-    os.makedirs(object_dir, exist_ok=True)
-    with open(object_path, "wb") as file:
-        file.write(zlib.compress(tree_object))
-
-    return tree_sha
+    tree_content = b"".join(entries)
+    return hash_object(tree_content, obj_type="tree")
         
 
 def main():
@@ -113,7 +100,9 @@ def main():
         print(content, end="")
     elif command == "hash-object":
         file = sys.argv[sys.argv.index("-w") + 1]
-        sha = hash_object(file)
+        with open(file, "rb") as file:
+            data = file.read()
+        sha = hash_object(data)
         print(sha)
     elif command == "ls-tree":
         tree_sha = sys.argv[sys.argv.index("--name-only") + 1]
