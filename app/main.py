@@ -25,8 +25,7 @@ def hash_object(data, obj_type="blob", write=True):
             os.makedirs(object_dir, exist_ok=True)
             with open(object_path, "wb") as file:
                 file.write(zlib.compress(full_data))
-    
-            
+                
     return sha
     
 def read_tree_object(sha):
@@ -74,13 +73,11 @@ def write_tree(directory):
             mode = "100644"
             with open(entry_path, "rb") as file:
                 content = file.read()
-            # print(content)
             sha = hash_object(content, obj_type="blob")
         
         entries.append(f"{mode} {entry}\0".encode() + bytes.fromhex(sha))
         
     tree_content = b"".join(entries)
-    # print(repr(tree_content))
     return hash_object(tree_content, obj_type="tree")
         
 
@@ -106,7 +103,7 @@ def main():
         file = sys.argv[sys.argv.index("-w") + 1]
         with open(file, "rb") as file:
             data = file.read()
-        sha = hash_object(data)
+        sha = hash_object(data, "blob", True)
         print(sha)
     elif command == "ls-tree":
         tree_sha = sys.argv[sys.argv.index("--name-only") + 1]
