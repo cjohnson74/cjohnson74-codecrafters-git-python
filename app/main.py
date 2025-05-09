@@ -77,7 +77,7 @@ def write_tree(dir):
             entries.append({
                 "mode": "100644",
                 "name": filename,
-                "sha": hash_object(filename)
+                "sha": hash_object(f"{dirpath}/{filename}")
             })
     data = "".join([f"{entry.mode} {entry.name}\0{entry.sha}" for entry in entries])
     print(f"data: {data}")
