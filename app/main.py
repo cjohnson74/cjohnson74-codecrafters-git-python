@@ -93,7 +93,7 @@ def write_tree(dir):
     print(f"data: {data}")
     header = f"tree {len(data)}\0"
     print(f"header: {header}")
-    file_content = header + data
+    file_content = f"{header}{data}"
     print(f"file_content: {repr(file_content)}")
     sha = hashlib.sha1(file_content.encode("utf-8")).hexdigest()
     print(f"sha: {sha}")
