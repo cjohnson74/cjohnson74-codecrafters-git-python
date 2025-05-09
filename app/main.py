@@ -90,15 +90,15 @@ def write_tree(dir):
             # print(f"{entry["mode"]} {entry["name"]}\0 {entry["sha"]}")
             entries.append(entry)
     data = "".join([f"{entry["mode"]} {entry["name"]}\0 {entry["sha"]}" for entry in entries])
-    # print(f"data: {repr(data)}")
+    print(f"data: {repr(data)}")
     header = f"tree {len(data)}\0"
-    # print(f"header: {repr(header)}")
+    print(f"header: {repr(header)}")
     file_content = f"{header}{data}"
-    # print(f"file_content: {repr(file_content)}")
+    print(f"file_content: {repr(file_content)}")
     sha = hashlib.sha1(file_content.encode("utf-8")).hexdigest()
-    # print(f"sha: {sha}")
+    print(f"sha: {sha}")
     file_path = f".git/objects/{sha[:2]}/{sha[2:]}"
-    # print(f"file_path: {file_path}")
+    print(f"file_path: {file_path}")
     dir_path = os.path.dirname(file_path)
     os.makedirs(dir_path, exist_ok=True)
     with open(file_path, "wb") as file:
