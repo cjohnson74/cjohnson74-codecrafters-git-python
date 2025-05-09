@@ -23,7 +23,8 @@ def hash_object(file):
         sha = hashlib.sha1(blob_object.encode("utf-8")).hexdigest()
         file_path = f".git/objects/{sha[:2]}/{sha[2:]}"
         print(f"file_path: {file_path}")
-        os.makedirs(os.path.dirname(file_path))
+        dir_path = os.path.dirname(file_path)
+        os.makedirs(dir_path, exist_ok=True)
         with open(file_path, "wb") as file:
             file.write(zlib.compress(blob_object.encode("utf-8")))
         return sha
