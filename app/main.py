@@ -86,11 +86,11 @@ def write_tree(directory):
 def write_commit(tree_sha, parent_commit_sha, commit_message):
     current_time = datetime.now()
     data = []
-    data.append("tree " + tree_sha)
-    data.append("parent " + parent_commit_sha)
-    data.append(f"author {USER_NAME} <{USER_EMAIL}> {str(current_time.timestamp())} {str(current_time.astimezone().tzinfo)}")
-    data.append(f"committer {USER_NAME} <{USER_EMAIL}> {str(current_time.timestamp())} {str(current_time.astimezone().tzinfo)}")
-    data = "".join(data)
+    data.append(f"tree {tree_sha}")
+    data.append(f"parent {parent_commit_sha}")
+    data.append(f"author {USER_NAME} <{USER_EMAIL}> {int(current_time.timestamp())} {str(current_time.astimezone().tzinfo)}")
+    data.append(f"committer {USER_NAME} <{USER_EMAIL}> {int(current_time.timestamp())} {str(current_time.astimezone().tzinfo)}")
+    data = "".join(data).encode("utf-8")
     commit_sha = hash_object(data, obj_type="commit", write=True)
     return commit_sha
     
