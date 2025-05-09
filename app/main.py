@@ -74,7 +74,7 @@ def write_tree(directory):
             mode = "100644"
             with open(entry_path, "rb") as file:
                 content = file.read()
-            print(content)
+            # print(content)
             sha = hash_object(content, obj_type="blob")
         
         entries.append(f"{mode} {entry}\0".encode() + bytes.fromhex(sha))
