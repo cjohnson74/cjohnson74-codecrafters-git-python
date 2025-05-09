@@ -19,7 +19,9 @@ def read_blob_object(sha):
     
 def hash_object(data, obj_type="blob", write=True):
     header = f"{obj_type} {len(data)}\0".encode()
+    print(header)
     full_data = header + data
+    print(full_data)
     sha = hashlib.sha1(full_data).hexdigest()
     
     if write:
