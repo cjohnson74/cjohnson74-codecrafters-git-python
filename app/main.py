@@ -58,8 +58,12 @@ def read_tree_object(sha):
     
 def write_tree():
     for dirpath, dirnames, filenames in os.walk(os.getcwd()):
+        if ".git" in dirpath:
+            continue
         print(f"Directory: {dirpath}")
         for dirname in dirnames:
+            if ".git" in dirname:
+                continue
             print(f"    Subdirectory: {dirname}")
         for filename in filenames:
             print(f"    File: {filename}")
