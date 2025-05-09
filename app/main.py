@@ -78,6 +78,7 @@ def write_tree(directory):
         entries.append(f"{mode} {entry}\0".encode() + bytes.fromhex(sha))
         
     tree_content = b"".join(entries)
+    print(repr(tree_content))
     return hash_object(tree_content, obj_type="tree")
         
 
