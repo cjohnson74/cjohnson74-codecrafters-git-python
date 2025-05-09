@@ -90,9 +90,9 @@ def write_tree(dir):
             print(f"{entry["mode"]} {entry["name"]}\0 {entry["sha"]}")
             entries.append(entry)
     data = "".join([f"{entry["mode"]} {entry["name"]}\0 {entry["sha"]}" for entry in entries])
-    print(f"data: {data}")
+    print(f"data: {repr(data)}")
     header = f"tree {len(data)}\0"
-    print(f"header: {header}")
+    print(f"header: {repr(header)}")
     file_content = f"{header}{data}"
     print(f"file_content: {repr(file_content)}")
     sha = hashlib.sha1(file_content.encode("utf-8")).hexdigest()
