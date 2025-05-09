@@ -62,16 +62,16 @@ def read_tree_object(sha):
         return entries
     
 def write_tree(dir):
-    # print(dir)
+    print(f"cwd: {dir}")
     entries = []
     for dirpath, dirnames, filenames in os.walk(dir):
         if ".git" in dirpath:
             continue
-        # print(f"Directory: {dirpath}")
+        print(f"Directory: {dirpath}")
         for dirname in dirnames:
             if ".git" in dirname:
                 continue
-            # print(f"    Subdirectory: {dirname}")
+            print(f"    Subdirectory: {dirname}")
             entry = {
                 "mode": "040000",
                 "name": dirname,
@@ -80,8 +80,8 @@ def write_tree(dir):
             # print(f"{entry["mode"]} {entry["name"]}\0 {entry["sha"]}")
             entries.append(entry)
         for filename in filenames:
-            # print(f"    File: {filename}")
-            # print(f"{dirpath}/{filename}")
+            print(f"    File: {filename}")
+            print(f"{dirpath}/{filename}")
             entry = {
                 "mode": "100644",
                 "name": filename,
