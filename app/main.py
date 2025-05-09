@@ -59,7 +59,7 @@ def read_tree_object(sha):
 def write_tree(dir):
     print(dir)
     entries = []
-    for dirpath, dirnames, filenames in os.walk():
+    for dirpath, dirnames, filenames in os.walk(dir):
         if ".git" in dirpath:
             continue
         print(f"Directory: {dirpath}")
@@ -84,7 +84,7 @@ def write_tree(dir):
     header = f"tree {len(data)}\0"
     print(f"header: {header}")
     file_content = header + data
-    print(f"file_content: {file_conent}")
+    print(f"file_content: {file_content}")
     sha = hashlib.sha1(file_content.encode("utf-8")).hexdigest()
     print(f"sha: {sha}")
     return sha
