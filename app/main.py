@@ -94,7 +94,7 @@ def write_tree(dir, visited_dirs=None):
             }
             # print(f"{entry["mode"]} {entry["name"]}\0 {entry["sha"]}")
             entries.append(entry)
-    data = "".join([f"{entry['mode']} {entry['name']}\0".encode("utf-8") + bytes.fromhex(entry['sha']) for entry in entries])
+    data = b"".join([f"{entry['mode']} {entry['name']}\0".encode("utf-8") + bytes.fromhex(entry['sha']) for entry in entries])
     print(f"data: {repr(data)}")
     header = f"tree {len(data)}\0"
     print(f"header: {repr(header)}")
