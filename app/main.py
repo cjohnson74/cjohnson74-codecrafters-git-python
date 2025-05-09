@@ -18,11 +18,11 @@ def hash_object(file):
         data = file.read()
         data_len = len(data)
         blob_object = f"blob {data_len}\0{data}"
-        print(f"data: {data}")
-        print(f"blob_obj: {repr(blob_object)}")
+        # print(f"data: {data}")
+        # print(f"blob_obj: {repr(blob_object)}")
         sha = hashlib.sha1(blob_object.encode("utf-8")).hexdigest()
         file_path = f".git/objects/{sha[:2]}/{sha[2:]}"
-        print(f"file_path: {file_path}")
+        # print(f"file_path: {file_path}")
         dir_path = os.path.dirname(file_path)
         os.makedirs(dir_path, exist_ok=True)
         with open(file_path, "wb") as file:
@@ -62,41 +62,41 @@ def read_tree_object(sha):
         return entries
     
 def write_tree(dir):
-    print(dir)
+    # print(dir)
     entries = []
     for dirpath, dirnames, filenames in os.walk(dir):
         if ".git" in dirpath:
             continue
-        print(f"Directory: {dirpath}")
+        # print(f"Directory: {dirpath}")
         for dirname in dirnames:
             if ".git" in dirname:
                 continue
-            print(f"    Subdirectory: {dirname}")
+            # print(f"    Subdirectory: {dirname}")
             entry = {
                 "mode": "040000",
                 "name": dirname,
                 "sha": write_tree(f"{dirpath}/{dirname}")
             }
-            print(f"{entry["mode"]} {entry["name"]}\0 {entry["sha"]}")
+            # print(f"{entry["mode"]} {entry["name"]}\0 {entry["sha"]}")
             entries.append(entry)
         for filename in filenames:
-            print(f"    File: {filename}")
-            print(f"{dirpath}/{filename}")
+            # print(f"    File: {filename}")
+            # print(f"{dirpath}/{filename}")
             entry = {
                 "mode": "100644",
                 "name": filename,
                 "sha": hash_object(f"{dirpath}/{filename}")
             }
-            print(f"{entry["mode"]} {entry["name"]}\0 {entry["sha"]}")
+            # print(f"{entry["mode"]} {entry["name"]}\0 {entry["sha"]}")
             entries.append(entry)
     data = "".join([f"{entry["mode"]} {entry["name"]}\0 {entry["sha"]}" for entry in entries])
-    print(f"data: {repr(data)}")
+    # print(f"data: {repr(data)}")
     header = f"tree {len(data)}\0"
-    print(f"header: {repr(header)}")
+    # print(f"header: {repr(header)}")
     file_content = f"{header}{data}"
-    print(f"file_content: {repr(file_content)}")
+    # print(f"file_content: {repr(file_content)}")
     sha = hashlib.sha1(file_content.encode("utf-8")).hexdigest()
-    print(f"sha: {sha}")
+    # print(f"sha: {sha}")
     return sha
         
 
@@ -129,7 +129,8 @@ def main():
             print(entry['name'])
     elif command == "write-tree":
         working_dir = os.getcwd()
-        return write_tree(working_dir)
+        tree_sha = write_tree(working_dir)
+        print(tree_sha)
     else:
         raise RuntimeError(f"Unknown command #{command}")
 
