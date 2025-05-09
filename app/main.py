@@ -25,7 +25,6 @@ def hash_object(data, obj_type="blob", write=True):
             os.makedirs(object_dir, exist_ok=True)
             with open(object_path, "wb") as file:
                 file.write(zlib.compress(full_data))
-                
     return sha
     
 def read_tree_object(sha):
