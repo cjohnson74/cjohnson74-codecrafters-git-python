@@ -76,6 +76,7 @@ def write_tree(dir):
             entries.append(entry)
         for filename in filenames:
             print(f"    File: {filename}")
+            print(f"{dirpath}/{filename}")
             entry = {
                 "mode": "100644",
                 "name": filename,
