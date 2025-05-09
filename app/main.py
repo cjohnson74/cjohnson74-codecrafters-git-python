@@ -131,7 +131,7 @@ def main():
     elif command == "commit-tree":
         tree_sha = sys.argv[sys.argv.index(command) + 1]
         parent_commit_sha = sys.argv[sys.argv.index("-p") + 1]
-        commit_message = sys.arv[sys.argv.index("-m") + 1]
+        commit_message = sys.argv[sys.argv.index("-m") + 1]
         commit_sha = write_commit(tree_sha, parent_commit_sha, commit_message)
     else:
         raise RuntimeError(f"Unknown command #{command}")
