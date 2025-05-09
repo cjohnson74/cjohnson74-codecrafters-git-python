@@ -62,53 +62,35 @@ def read_tree_object(sha):
         return entries
     
 def write_tree(dir, visited_dirs=None):
-    if visited_dirs is None:
-        visited_dirs = set()
-    real_path = os.path.realpath(dir)
-    if real_path in visited_dirs:
-        raise RuntimeError(f"Circular directory structure detected: {real_path}")
-    visited_dirs.add(real_path)
-    # print(f"cwd: {dir}")
     entries = []
-    for dirpath, dirnames, filenames in os.walk(dir, topdown=True):
-        dirnames[:] = [d for d in dirnames if d != ".git"]
-        # print(f"Directory: {dirpath}")
-        for dirname in dirnames:
-            if ".git" in dirname:
-                continue
-            # print(f"    Subdirectory: {dirname}")
-            entry = {
-                "mode": "040000",
-                "name": dirname,
-                "sha": write_tree(f"{dirpath}/{dirname}", visited_dirs)
-            }
-            # print(f'{entry["mode"]} {entry["name"]}\0 {entry["sha"]}')
-            entries.append(entry)
-        for filename in filenames:
-            # print(f"    File: {filename}")
-            # print(f"{dirpath}/{filename}")
-            entry = {
-                "mode": "100644",
-                "name": filename,
-                "sha": hash_object(f"{dirpath}/{filename}")
-            }
-            # print(f"{entry["mode"]} {entry["name"]}\0 {entry["sha"]}")
-            entries.append(entry)
-    data = b"".join([f"{entry['mode']} {entry['name']}\0".encode("utf-8") + bytes.fromhex(entry['sha']) for entry in entries])
-    # print(f"data: {repr(data)}")
-    header = f"tree {len(data)}\0"
-    # print(f"header: {repr(header)}")
-    file_content = f"{header}{data}"
-    # print(f"file_content: {repr(file_content)}")
-    sha = hashlib.sha1(file_content.encode("utf-8")).hexdigest()
-    # print(f"sha: {sha}")
-    file_path = f".git/objects/{sha[:2]}/{sha[2:]}"
-    # print(f"file_path: {file_path}")
-    dir_path = os.path.dirname(file_path)
-    os.makedirs(dir_path, exist_ok=True)
-    with open(file_path, "wb") as file:
-        file.write(zlib.compress(file_content.encode("utf-8")))
-    return sha
+    for entry in sorted(os.listdir(dir)):
+        entry_path = os.path.join(dir, entry)
+        if os.path.isdir(entry_path):
+            mode = "40000"
+            sha = write_tree(entry_path)
+        else:
+            mode = "100644"
+            with open(entry_path, "rb") as file:
+                content = file.read()
+            sha = hashlib.sha1(b"blob " + str(len(content)).encode() + b"\0" + content).hexdigest()
+        
+        entries.append((mode, entry, bytes.fromhex(sha)))
+        
+    tree_content = b"".join(
+        f"{mode} {name}\0".encode() + sha for mode, name, sha in entries
+    )
+    tree_header = f"tree {len(tree_content)}\0".encode()
+    tree_object = tree_header + tree_content
+    
+    tree_sha = hashlib.sha1(tree_object).hexdigest()
+    
+    object_dir = os.path.join(".git", "objects", tree_sha[:2])
+    object_path = os.path.join(object_dir, tree_sha[2:])
+    os.makedirs(object_dir, exist_ok=True)
+    with open(object_path, "wb") as file:
+        file.write(tree_object)
+    
+    return tree_sha
         
 
 def main():
