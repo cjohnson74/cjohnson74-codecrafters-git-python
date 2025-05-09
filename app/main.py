@@ -19,7 +19,7 @@ def hash_object(file):
         data_len = len(data)
         blob_object = f"blob {data_len}\0{data}"
         print(f"data: {data}")
-        print(f"blob_obj: {blob_object}")
+        print(f"blob_obj: {repr(blob_object)}")
         sha = hashlib.sha1(blob_object.encode("utf-8")).hexdigest()
         file_path = f".git/objects/{sha[:2]}/{sha[2:]}"
         print(f"file_path: {file_path}")
