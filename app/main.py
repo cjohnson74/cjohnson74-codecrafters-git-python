@@ -82,9 +82,9 @@ def write_tree(dir):
                 "name": filename,
                 "sha": hash_object(f"{dirpath}/{filename}")
             }
-            print(f"{entry.mode} {entry.name}\0{entry.sha}")
+            print(f"{entry["mode"]} {entry["name"]}\0{entry["sha"]}")
             entries.append(entry)
-    data = "".join([f"{entry.mode} {entry.name}\0{entry.sha}" for entry in entries])
+    data = "".join([f"{entry["mode"]} {entry["name"]}\0{entry["sha"]}" for entry in entries])
     print(f"data: {data}")
     header = f"tree {len(data)}\0"
     print(f"header: {header}")
