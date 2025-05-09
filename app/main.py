@@ -97,6 +97,12 @@ def write_tree(dir):
     # print(f"file_content: {repr(file_content)}")
     sha = hashlib.sha1(file_content.encode("utf-8")).hexdigest()
     # print(f"sha: {sha}")
+    file_path = f".git/objects/{sha[:2]}/{sha[2:]}"
+    # print(f"file_path: {file_path}")
+    dir_path = os.path.dirname(file_path)
+    os.makedirs(dir_path, exist_ok=True)
+    with open(file_path, "wb") as file:
+        file.write(zlib.compress(file_content.encode("utf-8")))
     return sha
         
 
