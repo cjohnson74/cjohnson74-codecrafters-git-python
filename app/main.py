@@ -194,6 +194,9 @@ def parse_refs(ref_res):
         index += length - 4
         print(f"Index: {index}")
         
+        if content.startswith("# service="):
+            continue
+        
         if "HEAD" in content or "refs/" in content:
             parts = content.split(" ")
             obj_id = parts[0]
