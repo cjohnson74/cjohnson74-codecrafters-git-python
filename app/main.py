@@ -1,3 +1,4 @@
+import ssl
 import sys
 import os
 import zlib
@@ -102,17 +103,21 @@ def write_commit(tree_sha, parent_commit_sha, commit_message):
 
 # def fetch_pack(head_sha):
 
-def clone_repo(git_url, dir):
+def fetch_info_refs(git_url):
     host = "github.com"
-    url_request = f"{git_url}/info/refs?service=git-upload-pack"
-    print(url_request)
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect((host, 80))
-    
-    request = f"GET {url_request} HTTP/1.1\r\n"
-    # request += f"HOST: {host}\r\n"
-    # request += "Connection: close\r\n\r\n"
-    client_socket.sendall(request.encode())
+    port = 443
+    repo_path = git_url.split(host)[1]
+    context = ssl.create_default_context()
+    client_socket = socket.create_connection((host, port))
+    client_secure_socket = context.wrap_socket(client_socket, server_hostname=host)
+    request = {
+        f"GET {repo_path}/info/refs?service=git-upload-pack HTTP/1.1\r\n"
+        f"Host: {host}\r\n"
+        f"User-Agent: custom-git-client"
+        f"Accept: */*\r\n"
+        f"Connection: close\r\n\r\n"
+    }
+    client_secure_socket.sendall(request.encode("utf-8"))
     
     res = b""
     while True:
@@ -123,7 +128,10 @@ def clone_repo(git_url, dir):
         res += data
     
     print(res.decode("utf-8"))
-    client_socket.close()
+
+def clone_repo(git_url, dir):
+    fetch_info_refs(git_url)
+    
     
 
 def main():
