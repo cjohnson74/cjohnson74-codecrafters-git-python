@@ -102,9 +102,6 @@ def write_commit(tree_sha, parent_commit_sha, commit_message):
     commit_sha = hash_object(data, obj_type="commit", write=True)
     return commit_sha
 
-def send_git_request(host, port, repo_path, body=None):
-
-
 def pkt_line(content):
     len_content = len(content).encode("utf-8")
     print(f"binary_len: {repr(len_content)}")
@@ -142,9 +139,6 @@ def fetch_pack_file(head_sha, git_url):
         raise RuntimeError(f"Failed to send request to {host}:{port} - {e}")
     
     print(f"Response: {res}")
-    
-    
-    
 
 def fetch_head_sha(git_url):
     host = "github.com"
