@@ -112,7 +112,7 @@ def fetch_pack_file(head_sha, git_url):
     body = (
         f"0054want {head_sha} multiack side-band-64k ofs-delta\n"
         f"0000"
-        f"0009dont\n"
+        f"0009done\n"
     )
     print(f"pkt_line: {body}")
     
