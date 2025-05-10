@@ -103,8 +103,10 @@ def write_commit(tree_sha, parent_commit_sha, commit_message):
     return commit_sha
 
 def pkt_line(content):
-    len_content = len(content).encode("utf-8")
+    len_content = f"{len(content) + 4:04x}"
     print(f"binary_len: {repr(len_content)}")
+    length = f"{len(content) + 4:04x}"
+    return f"{length}{content}"
 
 def fetch_pack_file(head_sha, git_url):
     host = "github.com"
@@ -112,6 +114,7 @@ def fetch_pack_file(head_sha, git_url):
     repo_path = git_url.split(host)[1]
     
     body = pkt_line(f"want {head_sha}\n")
+    print(f"pkt_line: {body}")
     
     context = ssl.create_default_context()
     try:
