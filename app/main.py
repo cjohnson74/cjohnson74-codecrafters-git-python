@@ -117,13 +117,13 @@ def send_git_request(host, port, repo_path, body=None):
                 )
                 secure_socket.sendall(request.encode("utf-8"))
                 
-                response = b""
+                res = b""
                 while True:
                     data = secure_socket.recv(4096)
                     if not data:
                         break
-                    response += data
-        return response
+                    res += data
+        return res
     except (socket.error, ssl.SSLError) as e:
         raise RuntimeError(f"Failed to send request to {host}:{port} - {e}")
 
@@ -151,6 +151,7 @@ def fetch_head_sha(git_url):
     repo_path = git_url.split(host)[1]
     
     res = send_git_request(host, port, repo_path)
+    print(f"Res: {res}")
                 
     headers, _, body = res.partition(b"\r\n\r\n")
     
