@@ -239,7 +239,7 @@ def parse_refs(ref_res):
 
 def save_pack_file(pack_file_res):
     # headers, _, body = pack_file_res.partition(b"/r/n/r/n")
-    print(f"Packfile Res: {pack_file_res[:2000]}")
+    print(f"Packfile Res: {pack_file_res[pack_file_res.index(b"PACK"):]}")
     packfile_data = pack_file_res.split(b"PACK", 1)[1]
     packfile_data = b"PACK" + packfile_data
     packfile_dir = f"{os.curdir}/packfile/"
