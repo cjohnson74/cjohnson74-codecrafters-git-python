@@ -118,7 +118,6 @@ def fetch_pack_file(git_url):
                     f"Host: {host}\r\n"
                     f"User-Agent: custom-git-client\r\n"
                     f"Accept: */*\r\n"
-                    f"Content-Type: application/x-git-upload-pack-request"
                     f"Connection: close\r\n\r\n"
                 )
                 client_secure_socket.sendall(request.encode("utf-8"))
@@ -140,6 +139,16 @@ def fetch_pack_file(git_url):
                 done_line = f"0009done\n"
                 negotiation_request = want_line + done_line
                 print(f"Negotiation Request: {negotiation_request}")
+                negotiation_request = (
+                    f"POST {repo_path}/info/refs?service=git-upload-pack HTTP/1.1\r\n"
+                    f"Host: {host}\r\n"
+                    f"User-Agent: custom-git-client\r\n"
+                    f"Accept: */*\r\n"
+                    f"Content-Type: application/x-git-upload-pack-request"
+                    f"Content-Length: {len(negotiation_request)}"
+                    f"Connection: close\r\n\r\n"
+                    f"{negotiation_request}"
+                )
                 client_secure_socket.sendall(negotiation_request.encode("utf-8"))
                 
                 packfile_response = bytearray()
