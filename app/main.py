@@ -255,7 +255,6 @@ def save_pack_file(pack_file_res):
 def unpack_packfile(packfile_path):
     with open(packfile_path, "rb") as file:
         packfile_data = file.read()
-        packfile_data = zlib.decompress(packfile_data)
         print(f"Packfile Data: {packfile_data}")
 
 def clone_repo(git_url, dir):
