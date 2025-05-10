@@ -110,7 +110,7 @@ def fetch_pack_file(head_sha, git_url):
     repo_path = parsed_url.path
     
     body = (
-        f"0032want {head_sha}\n"
+        f"0054want {head_sha} multiack side-band-64k ofs-delta\n"
         f"0000"
         f"0009dont\n"
     )
