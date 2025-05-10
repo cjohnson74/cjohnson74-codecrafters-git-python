@@ -118,6 +118,7 @@ def fetch_pack_file(git_url):
                     f"Host: {host}\r\n"
                     f"User-Agent: custom-git-client\r\n"
                     f"Accept: */*\r\n"
+                    f"Content-Type: application/x-git-upload-pack-request"
                     f"Connection: close\r\n\r\n"
                 )
                 client_secure_socket.sendall(request.encode("utf-8"))
