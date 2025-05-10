@@ -113,7 +113,7 @@ def send_git_request(host, port, repo_path, body=None):
                 f"User-Agent: custom-git-client\r\n"
                 f"Accept: */*\r\n"
                 f"Connection: close\r\n\r\n"
-                f"{body}" if body is not None else ""
+                # f"{body}" if body is not None else ""
             )
             client_secure_socket.sendall(request.encode("utf-8"))
             
