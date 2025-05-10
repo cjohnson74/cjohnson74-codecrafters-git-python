@@ -239,10 +239,7 @@ def parse_refs(ref_res):
 
 def save_pack_file(pack_file_res):
     headers, _, body = pack_file_res.partition(b"/r/n/r/n")
-    print(f"HTTP Headers: {headers.decode("utf-8")}")
-    
-    if b"Transfer-Encoding: chunked" in headers:
-        print("Transfer True")
+    print(f"HTTP Headers: {headers}")
     print(f"Packfile Res: {pack_file_res[pack_file_res.index(b"PACK"):]}")
     packfile_data = pack_file_res.split(b"PACK", 1)[1]
     packfile_data = b"PACK" + packfile_data
