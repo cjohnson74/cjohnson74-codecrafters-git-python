@@ -109,13 +109,6 @@ def fetch_pack_file(git_url):
     host = parsed_url.netloc
     repo_path = parsed_url.path
     
-    body = (
-        f"0054want {head_sha} multiack side-band-64k ofs-delta\n"
-        f"0000"
-        f"0009done\n"
-    )
-    print(f"pkt_line: {body}")
-    
     context = ssl.create_default_context()
     try:
         with socket.create_connection((host, port)) as client_socket:
