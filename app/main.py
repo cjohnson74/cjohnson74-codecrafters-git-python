@@ -103,7 +103,7 @@ def write_commit(tree_sha, parent_commit_sha, commit_message):
 
 # def fetch_pack(head_sha):
 
-def fetch_info_refs(git_url):
+def fetch_head_sha(git_url):
     host = "github.com"
     port = 443
     repo_path = git_url.split(host)[1]
@@ -133,7 +133,7 @@ def fetch_info_refs(git_url):
     return head_sha
 
 def clone_repo(git_url, dir):
-    head_sha = fetch_info_refs(git_url)
+    head_sha = fetch_head_sha(git_url)
     print(f"head_sha: {head_sha}")
     
 
