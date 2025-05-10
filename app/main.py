@@ -153,7 +153,7 @@ def fetch_pack_file(git_url):
     except (socket.error, ssl.SSLError) as e:
         raise RuntimeError(f"Failed to send request to {host}:{port} - {e}") from e
     
-    print(f"Packfile Response: {packfile_response}")
+    print(f"Packfile Response: {zlib.decompress(packfile_response)}")
     return packfile_response
 
 def get_refs(port, host, repo_path):
