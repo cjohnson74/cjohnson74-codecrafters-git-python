@@ -129,9 +129,9 @@ def fetch_info_refs(git_url):
                 res += data
     headers, _, body = res.partition(b"\r\n\r\n")
     print("Headers:")
-    print(headers.decode("utf-8"))
+    print(headers.decode())
     print("\nBody:")
-    print(body.decode("utf-8"))
+    print(body.decode())
     # head_sha = res.split(" ")[0]
     # print(f"head_sha: {head_sha}")
     # return head_sha
