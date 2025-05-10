@@ -127,10 +127,13 @@ def fetch_info_refs(git_url):
                 if not data:
                     break
                 res += data
-    res = res.decode("utf-8")
-    head_sha = res.split(" ")[0]
-    print(f"head_sha: {head_sha}")
-    return head_sha
+    headers, _, body = res.partition(b"\r\n\r\n")
+    print("Headers:")
+    print(headers.decode("utf-8"))
+    print(body.decode("utf-8"))
+    # head_sha = res.split(" ")[0]
+    # print(f"head_sha: {head_sha}")
+    # return head_sha
 
 def clone_repo(git_url, dir):
     fetch_info_refs(git_url)
