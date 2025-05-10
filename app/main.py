@@ -171,26 +171,27 @@ def get_refs(port, host, repo_path):
     
     return ref_res
     
-def decode_ref_res(ref_res):
-    decoded_ref_res = b""
-    while ref_res:
-        chunk_size_end = ref_res.find(b"\r\n")
+def decode_ref_res(body):
+    decoded_body = b""
+    while body:
+        chunk_size_end = body.find(b"\r\n")
         if chunk_size_end == -1:
             break
-        chunk_size = int(ref_res[:chunk_size_end].decode("utf-8"), 16)
+        chunk_size = int(body[:chunk_size_end].decode("utf-8"), 16)
         if chunk_size == 0:
             break
         chunk_start = chunk_size_end + 2
         chunk_end = chunk_start + chunk_size
-        decoded_ref_res += ref_res[chunk_start:chunk_end]
-        ref_res = ref_res[chunk_end + 2:]
+        decoded_body += body[chunk_start:chunk_end]
+        body = body[chunk_end + 2:]
     
-    print(f"Decoded Body: {decoded_ref_res}")
-    return decoded_ref_res
+    print(f"Decoded Body: {decoded_body}")
+    return decoded_body
 
 def parse_refs(ref_res):
     print(f"Res: {ref_res}")
-    decoded_body = decode_ref_res(ref_res)
+    headers, _, body = ref_res.partition(b'\r\n\r\n')
+    decoded_body = decode_ref_res(body)
     
     refs = {}
     index = 0
