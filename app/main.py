@@ -158,7 +158,8 @@ def fetch_pack_file(head_sha, git_url):
 def fetch_head_sha(git_url):
     host = "github.com"
     port = 443
-    repo_path = git_url.split(host)[1]
+    parsed_url = urlparse(git_url)
+    repo_path = parsed_url.path
     
     context = ssl.create_default_context()
     try:
