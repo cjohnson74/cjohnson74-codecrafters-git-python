@@ -129,7 +129,7 @@ def fetch_info_refs(git_url):
                 res += data
     res = res.decode("utf-8")
     head_sha = res.split(" ")[0]
-    print(head_sha)
+    print(f"head_sha: {head_sha}")
     return head_sha
 
 def clone_repo(git_url, dir):
