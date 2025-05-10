@@ -136,9 +136,10 @@ def fetch_pack_file(git_url):
                 head_sha = refs["HEAD"]
                 
                 want_line_content = f"want {head_sha} multi_ack side-band-64k ofs-delta\n"
-                want_line = f"{len(want_line_content) + 4:04x}{want_line_content}"
+                want_line = f"{len(want_line_content) + 4:04x}{want_line_content}\n"
+                have_line = "0000\n"
                 done_line = f"0009done\n"
-                negotiation_request = want_line + done_line
+                negotiation_request = want_line + have_line + done_line
                 print(f"Negotiation Request: {negotiation_request}")
                 negotiation_request = (
                     f"POST {repo_path}.git/git-upload-pack HTTP/1.1\r\n"
