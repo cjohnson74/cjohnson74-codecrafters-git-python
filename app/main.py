@@ -154,7 +154,7 @@ def fetch_pack_file(git_url):
     except (socket.error, ssl.SSLError) as e:
         raise RuntimeError(f"Failed to send request to {host}:{port} - {e}") from e
     
-    return packfile_response
+    return packfile_response.decode("utf-8")
 
 def get_refs(port, host, repo_path):
     context = ssl.create_default_context()
