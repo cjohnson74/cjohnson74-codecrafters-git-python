@@ -123,7 +123,7 @@ def send_git_request(host, port, repo_path, body=None):
                 if not data:
                     break
                 res += data
-    return res
+            return res
     # except (socket.error, ssl.SSLError) as e:
     #     raise RuntimeError(f"Failed to send request to {host}:{port} - {e}")
 
