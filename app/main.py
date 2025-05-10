@@ -243,7 +243,7 @@ def save_pack_file(pack_file_res):
     print(f"Packfile Res: {pack_file_res[pack_file_res.index(b"PACK"):]}")
     packfile_data = pack_file_res.split(b"PACK", 1)[1]
     packfile_data = b"PACK" + packfile_data
-    packfile_data = zlib.decompress(packfile_data)
+    packfile_data = packfile_data.decode("utf-8")
     packfile_dir = f"{os.curdir}/packfile/"
     
     os.makedirs(packfile_dir, exist_ok=True)
