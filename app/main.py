@@ -183,7 +183,7 @@ def parse_refs(ref_res):
         index += 4
         
         if length_hex == "0000":
-            break
+            continue
         
         length = int(length_hex, 16)
         if length == 0:
