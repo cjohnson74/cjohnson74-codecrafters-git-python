@@ -153,7 +153,9 @@ def fetch_head_sha(git_url):
     res = send_git_request(host, port, repo_path)
                 
     headers, _, body = res.partition(b"\r\n\r\n")
+    
     body = body.decode("utf-8")
+    print(f"Body: {body}")
     head_sha = body[body.index("0155")+4:body.index("HEAD")-1]
     return head_sha
 
