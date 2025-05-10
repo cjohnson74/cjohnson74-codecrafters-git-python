@@ -129,7 +129,20 @@ def fetch_pack_file(git_url):
     try:
         with socket.create_connection((host, port)) as client_socket:
             with context.wrap_socket(client_socket, server_hostname=host) as client_secure_socket:
-                client_secure_socket.sendall(negotiation_request.encode("utf-8"))
+                post_request = (
+                    f"POST {repo_path}/git-upload-pack HTTP/1.1\r\n"
+                    f"Host: {host}\r\n"
+                    f"User-Agent: custom-git-client\r\n"
+                    f"Accept: */*\r\n"
+                    f"Content-Type: application/x-git-upload-pack-request\r\n"
+                    f"Content-Length: {len(negotiation_request)}\r\n"
+                    f"Connection: close\r\n\r\n"
+                    f"{negotiation_request}"
+                )
+                print(f"POST Request: {post_request}")
+                
+                # Send the POST request
+                client_secure_socket.sendall(post_request.encode("utf-8"))
                 
                 packfile_response = bytearray()
                 while True:
@@ -218,7 +231,7 @@ def parse_refs(ref_res):
         if "HEAD" in content or "refs/" in content:
             parts = content.split(" ")
             obj_id = parts[0]
-            ref_name = parts[1].split("\0")[0]
+            ref_name = parts[1].split("\0")[0].strip()
             refs[ref_name] = obj_id
 
     print(f"Parsed Refs: {refs}")
