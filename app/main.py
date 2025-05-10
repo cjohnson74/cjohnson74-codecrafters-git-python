@@ -118,7 +118,7 @@ def fetch_pack_file(git_url):
                     f"Host: {host}\r\n"
                     f"User-Agent: custom-git-client\r\n"
                     f"Accept: */*\r\n"
-                    f"Connection: keep-alive\r\n\r\n"
+                    f"Connection: close\r\n\r\n"
                 )
                 client_secure_socket.sendall(request.encode("utf-8"))
                 
