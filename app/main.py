@@ -3,9 +3,10 @@ import os
 import zlib
 import hashlib
 from datetime import datetime
+import socket
 
 USER_NAME="cjohnson74"
-USER_EMAIL="cjohnson74@gmail.com"
+USER_EMAIL="cjohnson74.tech@gmail.com"
 
 def read_blob_object(sha):
     folder = sha[:2]
@@ -98,6 +99,29 @@ def write_commit(tree_sha, parent_commit_sha, commit_message):
     data = "\n".join(data).encode("utf-8")
     commit_sha = hash_object(data, obj_type="commit", write=True)
     return commit_sha
+
+def fetch_pack(head_sha)
+
+def clone_repo(git_url, dir):
+    host = "github.com"
+    url_request = f"{git_url}/info/refs"
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect((git_url, 80))
+    
+    request = f"GET {url_request[url_request.index(".com"):]}?service=git-upload-pack HTTP/1.1\r\n"
+    # request += f"HOST: {host}\r\n"
+    # request += "Connection: close\r\n\r\n"
+    client_socket.sendall(request.encode())
+    
+    res = b""
+    while True:
+        data = client_socket.recv(4096)
+        if not data:
+            break
+        response += data
+    
+    print(response.decode())
+    client_socket.close()
     
 
 def main():
@@ -142,6 +166,7 @@ def main():
     elif command == "clone":
         git_url, dir = sys.argv[sys.argv.index(command) + 1:]
         print(f"git_url: {git_url}\n dir: {dir}")
+        clone_repo(git_url, dir)
     else:
         raise RuntimeError(f"Unknown command #{command}")
 
