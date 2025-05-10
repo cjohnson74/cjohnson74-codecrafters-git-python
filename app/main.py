@@ -109,38 +109,21 @@ def fetch_pack_file(git_url):
     host = parsed_url.netloc
     repo_path = parsed_url.path
     
+    ref_res = get_refs(port, host, repo_path)   
+    refs = parse_refs(ref_res)
+    head_sha = refs["HEAD"]
+    
+    want_line_content = f"want {head_sha} multi_ack side-band-64k ofs-delta\n"
+    want_line = f"{len(want_line_content) + 4:04x}{want_line_content}"
+    have_line = "0000\n"
+    done_line = f"0009done\n"
+    negotiation_request = want_line + have_line + done_line
+    print(f"Negotiation Request: {negotiation_request}")
+    
     context = ssl.create_default_context()
     try:
         with socket.create_connection((host, port)) as client_socket:
             with context.wrap_socket(client_socket, server_hostname=host) as client_secure_socket:
-                request = (
-                    f"GET {repo_path}/info/refs?service=git-upload-pack HTTP/1.1\r\n"
-                    f"Host: {host}\r\n"
-                    f"User-Agent: custom-git-client\r\n"
-                    f"Accept: */*\r\n"
-                    f"Connection: close\r\n\r\n"
-                )
-                print(f"Request: {request}")
-                client_secure_socket.sendall(request.encode("utf-8"))
-                
-                ref_res = bytearray()
-                while True:
-                    data = client_secure_socket.recv(4096)
-                    if not data:
-                        break
-                    ref_res.extend(data)
-                    
-                print(f"Reference Discovery Response: {ref_res}")
-                
-                refs = parse_refs(ref_res)
-                head_sha = refs["HEAD"]
-                
-                want_line_content = f"want {head_sha} multi_ack side-band-64k ofs-delta\n"
-                want_line = f"{len(want_line_content) + 4:04x}{want_line_content}"
-                have_line = "0000\n"
-                done_line = f"0009done\n"
-                negotiation_request = want_line + have_line + done_line
-                print(f"Negotiation Request: {negotiation_request}")
                 negotiation_request = (
                     f"POST {repo_path}.git/git-upload-pack HTTP/1.1\r\n"
                     f"Host: {host}\r\n"
@@ -167,6 +150,32 @@ def fetch_pack_file(git_url):
     
     return packfile_response
 
+def get_refs(port, host, repo_path):
+    context = ssl.create_default_context()
+    try:
+        with socket.create_connection((host, port)) as client_socket:
+            with context.wrap_socket(client_socket, server_hostname=host) as client_secure_socket:
+                request = (
+                    f"GET {repo_path}/info/refs?service=git-upload-pack HTTP/1.1\r\n"
+                    f"Host: {host}\r\n"
+                    f"User-Agent: custom-git-client\r\n"
+                    f"Accept: */*\r\n"
+                    f"Connection: close\r\n\r\n"
+                )
+                print(f"Request: {request}")
+                client_secure_socket.sendall(request.encode("utf-8"))
+                
+                ref_res = bytearray()
+                while True:
+                    data = client_secure_socket.recv(4096)
+                    if not data:
+                        break
+                    ref_res.extend(data)
+                    
+                print(f"Reference Discovery Response: {ref_res}")
+    except (socket.error, ssl.SSLError) as e:
+        raise RuntimeError(f"Failed to send request to {host}:{port} - {e}") from e
+    
 def decode_body(body):
     decoded_body = b""
     while body:
