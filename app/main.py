@@ -252,10 +252,16 @@ def save_pack_file(pack_file_res):
     print(f"Packfile saved to {packfile_path}")
     return packfile_path
     
+def unpack_packfile(packfile_path):
+    with open(packfile_path, "wb") as file:
+        packfile_data = file.read()
+        packfile_data = zlib.decompress(packfile_data)
+        print(f"Packfile Data: {packfile_data}")
 
 def clone_repo(git_url, dir):
     pack_file_res = fetch_pack_file(git_url)
-    save_pack_file(pack_file_res)
+    packfile_path = save_pack_file(pack_file_res)
+    unpack_packfile(packfile_path)
     
 
 def main():
