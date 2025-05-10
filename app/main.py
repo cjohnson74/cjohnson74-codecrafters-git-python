@@ -164,7 +164,7 @@ def decode_body(body):
             break
         chunk_start = chunk_size_end + 2
         chunk_end = chunk_start + chunk_size
-        decode_body += body[chunk_start:chunk_end]
+        decoded_body += body[chunk_start:chunk_end]
         body = body[chunk_end + 2:]
     
     print(f"Decoded Body: {decoded_body}")
