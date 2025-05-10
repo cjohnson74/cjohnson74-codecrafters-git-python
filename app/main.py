@@ -100,7 +100,7 @@ def write_commit(tree_sha, parent_commit_sha, commit_message):
     commit_sha = hash_object(data, obj_type="commit", write=True)
     return commit_sha
 
-def fetch_pack(head_sha)
+# def fetch_pack(head_sha):
 
 def clone_repo(git_url, dir):
     host = "github.com"
