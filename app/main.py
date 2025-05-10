@@ -107,26 +107,27 @@ def fetch_info_refs(git_url):
     host = "github.com"
     port = 443
     repo_path = git_url.split(host)[1]
+    
     context = ssl.create_default_context()
-    client_socket = socket.create_connection((host, port))
-    client_secure_socket = context.wrap_socket(client_socket, server_hostname=host)
-    request = (
-        f"GET {repo_path}/info/refs?service=git-upload-pack HTTP/1.1\r\n"
-        f"Host: {host}\r\n"
-        f"User-Agent: custom-git-client"
-        f"Accept: */*\r\n"
-        f"Connection: close\r\n\r\n"
-    )
-    client_secure_socket.sendall(request.encode("utf-8"))
-    
-    res = b""
-    while True:
-        data = client_socket.recv(4096)
-        print(data.decode("utf-8"))
-        if not data:
-            break
-        res += data
-    
+    with socket.create_connection((host, port)) as client_socket:
+        with context.wrap_socket(client_socket, server_hostname=host) as client_secure_socket:
+            request = (
+                f"GET {repo_path}/info/refs?service=git-upload-pack HTTP/1.1\r\n"
+                f"Host: {host}\r\n"
+                f"User-Agent: custom-git-client"
+                f"Accept: */*\r\n"
+                f"Connection: close\r\n\r\n"
+            )
+            client_secure_socket.sendall(request.encode("utf-8"))
+            
+            res = b""
+            while True:
+                data = client_socket.recv(4096)
+                print(data.decode("utf-8"))
+                if not data:
+                    break
+                res += data
+            
     print(res.decode("utf-8"))
 
 def clone_repo(git_url, dir):
