@@ -103,19 +103,17 @@ def write_commit(tree_sha, parent_commit_sha, commit_message):
     commit_sha = hash_object(data, obj_type="commit", write=True)
     return commit_sha
 
-def pkt_line(content):
-    len_content = f"{len(content) + 4:04x}"
-    print(f"binary_len: {repr(len_content)}")
-    length = f"{len(content) + 4:04x}"
-    return f"{length}{content}"
-
 def fetch_pack_file(head_sha, git_url):
     host = "github.com"
     port = 443
     parsed_url = urlparse(git_url)
     repo_path = parsed_url.path
     
-    body = pkt_line(f"want {head_sha}\x0a") + f"00000009 done\x0a"
+    body = (
+        f"0032want {head_sha}\n"
+        f"0000"
+        f"0009dont\n"
+    )
     print(f"pkt_line: {body}")
     
     context = ssl.create_default_context()
