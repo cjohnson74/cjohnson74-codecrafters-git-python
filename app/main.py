@@ -103,29 +103,7 @@ def write_commit(tree_sha, parent_commit_sha, commit_message):
     return commit_sha
 
 def send_git_request(host, port, repo_path, body=None):
-    context = ssl.create_default_context()
-    # try:
-    with socket.create_connection((host, port)) as client_socket:
-        with context.wrap_socket(client_socket, server_hostname=host) as client_secure_socket:
-            request = (
-                f"GET {repo_path}/info/refs?service=git-upload-pack HTTP/1.1\r\n"
-                f"Host: {host}\r\n"
-                f"User-Agent: custom-git-client\r\n"
-                f"Accept: */*\r\n"
-                f"Connection: close\r\n\r\n"
-                # f"{body}" if body is not None else ""
-            )
-            client_secure_socket.sendall(request.encode("utf-8"))
-            
-            res = b""
-            while True:
-                data = client_secure_socket.recv(4096)
-                if not data:
-                    break
-                res += data
-            return res
-    # except (socket.error, ssl.SSLError) as e:
-    #     raise RuntimeError(f"Failed to send request to {host}:{port} - {e}")
+
 
 def pkt_line(content):
     len_content = len(content).encode("utf-8")
@@ -136,11 +114,34 @@ def fetch_pack_file(head_sha, git_url):
     port = 443
     repo_path = git_url.split(host)[1]
     
-    pkt_line(f"want {head_sha}\n")
+    body = pkt_line(f"want {head_sha}\n")
     
-    # body=""
-    # send_git_request(host, port, repo_path, body)
+    context = ssl.create_default_context()
+    try:
+        with socket.create_connection((host, port)) as client_socket:
+            with context.wrap_socket(client_socket, server_hostname=host) as client_secure_socket:
+                request = (
+                    f"POST .git/git-upload-pack"
+                    f"Host: {host}\r\n"
+                    f"User-Agent: custom-git-client\r\n"
+                    f"Acept: */*\r\n"
+                    f"Content-Type: application/x-git-upload-pack-request"
+                    f"Content-Length: {len(body)}"
+                    f"Connection: close\r\n\r\n"
+                )
+                request = request.encode("utf-8") + body
+                client_secure_socket.sendall(request)
+                
+                res = b""
+                while True:
+                    data = client_secure_socket.recv(4096)
+                    if not data:
+                        break
+                    res += data
+    except (socket.error, ssl.SSLError) as e:
+        raise RuntimeError(f"Failed to send request to {host}:{port} - {e}")
     
+    print(f"Response: {res}")
     
     
     
@@ -150,11 +151,32 @@ def fetch_head_sha(git_url):
     port = 443
     repo_path = git_url.split(host)[1]
     
-    res = send_git_request(host, port, repo_path)
-    print(f"Res: {res}")
+    context = ssl.create_default_context()
+    try:
+        with socket.create_connection((host, port)) as client_socket:
+            with context.wrap_socket(client_socket, server_hostname=host) as client_secure_socket:
+                request = (
+                    f"GET {repo_path}/info/refs?service=git-upload-pack HTTP/1.1\r\n"
+                    f"Host: {host}\r\n"
+                    f"User-Agent: custom-git-client\r\n"
+                    f"Accept: */*\r\n"
+                    f"Connection: close\r\n\r\n"
+                    # f"{body}" if body is not None else ""
+                )
+                client_secure_socket.sendall(request.encode("utf-8"))
                 
-    headers, _, body = res.partition(b"\r\n\r\n")
+                res = b""
+                while True:
+                    data = client_secure_socket.recv(4096)
+                    if not data:
+                        break
+                    res += data
+
+    except (socket.error, ssl.SSLError) as e:
+        raise RuntimeError(f"Failed to send request to {host}:{port} - {e}")
     
+    print(f"Res: {res}")
+    headers, _, body = res.partition(b"\r\n\r\n")
     body = body.decode("utf-8")
     print(f"Body: {body}")
     head_sha = body[body.index("0155")+4:body.index("HEAD")-1]
