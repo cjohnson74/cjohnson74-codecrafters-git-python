@@ -123,6 +123,7 @@ def fetch_pack_file(git_url):
     head_sha = refs["HEAD"]
     
     negotiation_request = construct_negotiation_request(head_sha)
+    print(f"Negotiation Request: {negotiation_request}")
     
     context = ssl.create_default_context()
     try:
