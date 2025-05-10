@@ -138,6 +138,7 @@ def fetch_pack_file(git_url):
                 want_line = f"{len(want_line_content) + 4:04x}{want_line_content}"
                 done_line = f"0009done\n"
                 negotiation_request = want_line + done_line
+                print(f"Negotiation Request: {negotiation_request}")
                 client_secure_socket.sendall(negotiation_request.encode("utf-8"))
                 
                 packfile_response = bytearray()
