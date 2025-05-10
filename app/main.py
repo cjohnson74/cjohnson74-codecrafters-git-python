@@ -123,7 +123,6 @@ def fetch_pack_file(git_url):
     head_sha = refs["HEAD"]
     
     negotiation_request = construct_negotiation_request(head_sha)
-    print(f"Negotiation Request: {negotiation_request}")
     
     context = ssl.create_default_context()
     try:
@@ -168,7 +167,6 @@ def get_refs(port, host, repo_path):
                     f"Accept: */*\r\n"
                     f"Connection: close\r\n\r\n"
                 )
-                print(f"Request: {request}")
                 client_secure_socket.sendall(request.encode("utf-8"))
                 
                 ref_res = bytearray()
@@ -178,7 +176,6 @@ def get_refs(port, host, repo_path):
                         break
                     ref_res.extend(data)
                     
-                print(f"Reference Discovery Response: {ref_res}")
     except (socket.error, ssl.SSLError) as e:
         raise RuntimeError(f"Failed to send request to {host}:{port} - {e}") from e
     
@@ -198,7 +195,6 @@ def decode_ref_res(body):
         decoded_body += body[chunk_start:chunk_end]
         body = body[chunk_end + 2:]
     
-    print(f"Decoded Body: {decoded_body}")
     return decoded_body
 
 def parse_refs(ref_res):
@@ -221,9 +217,7 @@ def parse_refs(ref_res):
             break
         
         content = decoded_body[index:index + length - 4].decode("utf-8")
-        print(f"Content: {content}")
         index += length - 4
-        print(f"Index: {index}")
         
         if content.startswith("# service="):
             continue
@@ -234,16 +228,11 @@ def parse_refs(ref_res):
             ref_name = parts[1].split("\0")[0].strip()
             refs[ref_name] = obj_id
 
-    print(f"Parsed Refs: {refs}")
     return refs
 
 def save_pack_file(pack_file_res):
-    # headers, _, body = pack_file_res.partition(b"/r/n/r/n")
-    # print(f"HTTP Headers: {headers}")
-    print(f"Packfile Res: {pack_file_res[pack_file_res.index(b"PACK"):]}")
     packfile_data = pack_file_res.split(b"PACK", 1)[1]
     packfile_data = b"PACK" + packfile_data
-    packfile_data = packfile_data.decode("utf-8")
     packfile_dir = f"{os.curdir}/packfile/"
     
     os.makedirs(packfile_dir, exist_ok=True)
@@ -257,7 +246,7 @@ def save_pack_file(pack_file_res):
 def unpack_packfile(packfile_path):
     with open(packfile_path, "rb") as file:
         packfile_data = file.read()
-        # print(f"Packfile Data: {packfile_data}")
+        print(f"Packfile Data: {packfile_data}")
 
 def clone_repo(git_url, dir):
     pack_file_res = fetch_pack_file(git_url)
