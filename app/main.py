@@ -149,11 +149,11 @@ def fetch_pack_file(git_url):
                     data = client_secure_socket.recv(4096)
                     if not data:
                         break
-                    packfile_response.extend(data)                
+                    packfile_response.extend(data)   
+                               
     except (socket.error, ssl.SSLError) as e:
         raise RuntimeError(f"Failed to send request to {host}:{port} - {e}") from e
     
-    print(f"Packfile Response: {zlib.decompress(packfile_response)}")
     return packfile_response
 
 def get_refs(port, host, repo_path):
@@ -237,9 +237,24 @@ def parse_refs(ref_res):
     print(f"Parsed Refs: {refs}")
     return refs
 
+def save_pack_file(pack_file_res):
+    headers, _, body = pack_file_res.partition("/r/n/r/n")
+    packfile_data = body.split("PACK", 1)[1]
+    packfile_data = b"PACK" + packfile_data
+    packfile_dir = f"{os.curdir}/packfile/"
+    
+    os.makedirs(packfile_dir, exist_ok=True)
+    packfile_path = os.path.join(packfile_dir, "packfile.pack")
+    with open(packfile_path, "wb") as file:
+        file.write(packfile_data)
+    
+    print(f"Packfile saved to {packfile_path}")
+    return packfile_path
+    
+
 def clone_repo(git_url, dir):
-    pack_file = fetch_pack_file(git_url)
-    # save_pack_file(pack_file)
+    pack_file_res = fetch_pack_file(git_url)
+    save_pack_file(pack_file_res)
     
 
 def main():
