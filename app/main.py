@@ -110,16 +110,6 @@ def pkt_line(content):
     return f"{length}{content}"
 
 def fetch_pack_file(head_sha, git_url):
-    """
-    Fetches the pack file from a remote Git repository.
-
-    Args:
-        head_sha (str): The SHA-1 hash of the HEAD commit to fetch.
-        git_url (str): The URL of the remote Git repository.
-
-    Returns:
-        None: The function sends a request to fetch the pack file and prints the response.
-    """
     host = "github.com"
     port = 443
     parsed_url = urlparse(git_url)
@@ -133,7 +123,8 @@ def fetch_pack_file(head_sha, git_url):
         with socket.create_connection((host, port)) as client_socket:
             with context.wrap_socket(client_socket, server_hostname=host) as client_secure_socket:
                 request = (
-                    f"POST {repo_path}.git/git-upload-pack"
+                    f"POST {repo_path}/git-upload-pack HTTP/1.1\r\n"
+                    f"Host: {host}\r\n"
                     f"Accept: */*\r\n"
                     f"User-Agent: custom-git-client\r\n"
                     f"Accept: */*\r\n"
