@@ -138,9 +138,7 @@ def fetch_pack_file(git_url):
                     f"Connection: close\r\n\r\n"
                     f"{negotiation_request}"
                 )
-                print(f"POST Request: {post_request}")
-                
-                # Send the POST request
+
                 client_secure_socket.sendall(post_request.encode("utf-8"))
                 
                 packfile_response = bytearray()
@@ -198,7 +196,6 @@ def decode_ref_res(body):
     return decoded_body
 
 def parse_refs(ref_res):
-    print(f"Res: {ref_res}")
     headers, _, body = ref_res.partition(b'\r\n\r\n')
     decoded_body = decode_ref_res(body)
     
