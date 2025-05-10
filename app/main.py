@@ -104,12 +104,12 @@ def write_commit(tree_sha, parent_commit_sha, commit_message):
 
 def clone_repo(git_url, dir):
     host = "github.com"
-    url_request = f"{git_url}/info/refs"
+    url_request = f"{git_url}/info/refs?service=git-upload-pack"
     print(url_request)
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((host, 80))
     
-    request = f"GET {url_request}?service=git-upload-pack HTTP/1.1\r\n"
+    request = f"GET {url_request} HTTP/1.1\r\n"
     # request += f"HOST: {host}\r\n"
     # request += "Connection: close\r\n\r\n"
     client_socket.sendall(request.encode())
