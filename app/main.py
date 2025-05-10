@@ -122,7 +122,7 @@ def fetch_info_refs(git_url):
             
             res = b""
             while True:
-                data = client_socket.recv(4096)
+                data = client_secure_socket.recv(4096)
                 print(data.decode("utf-8"))
                 if not data:
                     break
