@@ -119,6 +119,8 @@ def fetch_pack_file(git_url):
     repo_path = parsed_url.path
     
     initial_request = f"git-upload-pack {repo_path}\0host={host}\0\0version=1\0"
+    length = len(initial_request) + 4  # Add 4 bytes for the length prefix
+    initial_request = f"{length:04x}{initial_request}"
     print(f"Initial Request: {initial_request}")
     
     context = ssl.create_default_context()
