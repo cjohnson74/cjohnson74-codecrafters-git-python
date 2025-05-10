@@ -244,9 +244,9 @@ def unpack_packfile(packfile_path):
     with open(packfile_path, "rb") as file:
         packfile_data = file.read()
     
-    version = packfile_data[4:8]
+    version = packfile_data[4:8].decode()
     print(f"Version: {version}")
-    num_of_objects = packfile_data[8:12]
+    num_of_objects = packfile_data[8:12].decode()
     print(f"Number of Objects: {num_of_objects}")
     
     packfile_data = packfile_data[12:]
