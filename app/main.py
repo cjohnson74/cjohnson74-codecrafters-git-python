@@ -149,6 +149,7 @@ def fetch_pack_file(git_url):
                     f"Connection: close\r\n\r\n"
                     f"{negotiation_request}"
                 )
+                print(f"Negotiation Request: {negotiation_request}")
                 client_secure_socket.sendall(negotiation_request.encode("utf-8"))
                 
                 packfile_response = bytearray()
