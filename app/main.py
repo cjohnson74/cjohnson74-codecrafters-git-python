@@ -104,9 +104,9 @@ def write_commit(tree_sha, parent_commit_sha, commit_message):
     return commit_sha
 
 def fetch_pack_file(head_sha, git_url):
-    host = "github.com"
     port = 443
     parsed_url = urlparse(git_url)
+    host = parsed_url.netloc
     repo_path = parsed_url.path
     
     body = (
@@ -121,68 +121,97 @@ def fetch_pack_file(head_sha, git_url):
         with socket.create_connection((host, port)) as client_socket:
             with context.wrap_socket(client_socket, server_hostname=host) as client_secure_socket:
                 request = (
-                    f"POST {repo_path}/git-upload-pack HTTP/1.1\r\n"
-                    f"Host: {host}\r\n"
-                    f"Accept: */*\r\n"
-                    f"User-Agent: custom-git-client\r\n"
-                    f"Accept: */*\r\n"
-                    f"Content-Type: application/x-git-upload-pack-request\r\n"
-                    f"Content-Length: {len(body)}\r\n"
-                    f"Connection: close\r\n\r\n"
-                )
-                request = request.encode("utf-8") + body.encode("utf-8")
-                client_secure_socket.sendall(request)
-                
-                res = bytearray()
-                while True:
-                    data = client_secure_socket.recv(4096)
-                    if not data:
-                        break
-                    res.extend(data)
-    except (socket.error, ssl.SSLError) as e:
-        raise RuntimeError(f"Failed to send request to {host}:{port} - {e}")
-    
-    print(f"Response: {res}")
-
-def fetch_head_sha(git_url):
-    host = "github.com"
-    port = 443
-    parsed_url = urlparse(git_url)
-    repo_path = parsed_url.path
-    
-    context = ssl.create_default_context()
-    try:
-        with socket.create_connection((host, port)) as client_socket:
-            with context.wrap_socket(client_socket, server_hostname=host) as client_secure_socket:
-                request = (
                     f"GET {repo_path}/info/refs?service=git-upload-pack HTTP/1.1\r\n"
                     f"Host: {host}\r\n"
                     f"User-Agent: custom-git-client\r\n"
                     f"Accept: */*\r\n"
-                    f"Connection: close\r\n\r\n"
+                    f"Connection: keep-alive\r\n\r\n"
                 )
                 client_secure_socket.sendall(request.encode("utf-8"))
                 
-                res = bytearray()
+                ref_res = bytearray()
                 while True:
                     data = client_secure_socket.recv(4096)
                     if not data:
                         break
-                    res.extend(data)
+                    ref_res.extend(data)
+                    
+                print(f"Reference Discovery Response: {ref_res.encode("utf-8")}")
+                
+                refs = parse_refs(ref_res)
+                head_sha = refs["HEAD"]
+                
+                want_line = f"0054want {head_sha} multi_ack side-band-64k ofs-delta\n"
+                done_line = f"0009done\n"
+                negotiation_request = want_line + done_line
+                client_secure_socket.sendall(negotiation_request.encode("utf-8"))
+                
+                packfile_response = bytearray()
+                while True:
+                    data = client_secure_socket.recv(4096)
+                    if not data:
+                        break
+                    packfile_response.extend(data)
+                    
+                print(f"Packfile Response: {packfile_response}")
     except (socket.error, ssl.SSLError) as e:
         raise RuntimeError(f"Failed to send request to {host}:{port} - {e}")
     
-    print(f"Res: {res}")
-    headers, _, body = res.partition(b"\r\n\r\n")
-    body = body.decode("utf-8")
-    print(f"Body: {body}")
-    head_sha = body[body.index("0155")+4:body.index("HEAD")-1]
-    return head_sha
+    return packfile_response
+
+def decode_body(body):
+    decoded_body = b""
+    while body:
+        chunk_size_end = body.find(b"\r\n")
+        if chunk_size_end == -1:
+            break
+        chunk_size = int(body[:chunk_size_end].decode("utf-8"), 16)
+        if chunk_size == 0:
+            break
+        chunk_start = chunk_size_end + 2
+        chunk_end = chunk_start + chunk_size
+        decode_body += body[chunk_start:chunk_end]
+        body = body[chunk_end + 2:]
+    
+    print(f"Decoded Body: {decoded_body}")
+    return decoded_body
+
+def parse_refs(ref_res):
+    print(f"Res: {ref_res}")
+    headers, _, body = ref_res.partition(b"\r\n\r\n")
+    decoded_body = decode_body(body)
+    
+    refs = {}
+    index = 0
+    
+    while index < len(decoded_body):
+        length_hex = decoded_body[index:index + 4].decode("utf-8")
+        index += 4
+        
+        if length_hex == "0000":
+            break
+        
+        length = int(length_hex, 16)
+        if length == 0:
+            break
+        
+        content = decoded_body[index:index + length - 4].decode("utf-8")
+        index += length - 4
+        
+        if "HEAD" in content or "refs/" in content:
+            parts = content.split(" ")
+            obj_id = parts[0]
+            ref_name = parts[1].split("\0")[0]
+            refs[ref_name] = obj_id
+
+    print(f"Parsed Refs: {refs}")
+    return refs
 
 def clone_repo(git_url, dir):
     head_sha = fetch_head_sha(git_url)
     print(f"head_sha: {head_sha}")
     pack_file = fetch_pack_file(head_sha, git_url)
+    # save_pack_file(pack_file)
     
 
 def main():
