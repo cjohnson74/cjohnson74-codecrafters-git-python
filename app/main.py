@@ -130,6 +130,7 @@ def fetch_info_refs(git_url):
     headers, _, body = res.partition(b"\r\n\r\n")
     print("Headers:")
     print(headers.decode("utf-8"))
+    print("\nBody:")
     print(body.decode("utf-8"))
     # head_sha = res.split(" ")[0]
     # print(f"head_sha: {head_sha}")
