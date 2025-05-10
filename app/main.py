@@ -120,6 +120,7 @@ def fetch_pack_file(git_url):
                     f"Accept: */*\r\n"
                     f"Connection: close\r\n\r\n"
                 )
+                print(f"{request}")
                 client_secure_socket.sendall(request.encode("utf-8"))
                 
                 ref_res = bytearray()
