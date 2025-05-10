@@ -145,7 +145,7 @@ def fetch_pack_file(git_url):
                     f"User-Agent: custom-git-client\r\n"
                     f"Accept: */*\r\n"
                     f"Content-Type: application/x-git-upload-pack-request\r\n"
-                    f"Content-Length: {len(negotiation_request)}"
+                    f"Content-Length: {len(negotiation_request)}\r\n"
                     f"Connection: close\r\n\r\n"
                     f"{negotiation_request}"
                 )
