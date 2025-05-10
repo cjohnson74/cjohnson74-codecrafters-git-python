@@ -105,6 +105,7 @@ def write_commit(tree_sha, parent_commit_sha, commit_message):
 def clone_repo(git_url, dir):
     host = "github.com"
     url_request = f"{git_url}/info/refs"
+    print(url_request)
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((host, 80))
     
