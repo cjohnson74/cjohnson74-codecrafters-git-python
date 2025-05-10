@@ -238,6 +238,7 @@ def parse_refs(ref_res):
     return refs
 
 def save_pack_file(pack_file_res):
+    print(f"{pack_file_res[:100]}")
     headers, _, body = pack_file_res.partition(b"/r/n/r/n")
     packfile_data = body.split(b"PACK", 1)[1]
     packfile_data = b"PACK" + packfile_data
