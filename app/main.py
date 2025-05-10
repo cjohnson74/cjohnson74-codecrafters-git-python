@@ -125,7 +125,7 @@ def fetch_pack_file(head_sha, git_url):
     parsed_url = urlparse(git_url)
     repo_path = parsed_url.path
     
-    body = pkt_line(f"want {head_sha}\n")
+    body = pkt_line(f"want {head_sha}\x0a") + pkt_line(f"00000009 done\x0a")
     print(f"pkt_line: {body}")
     
     context = ssl.create_default_context()
