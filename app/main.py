@@ -192,6 +192,7 @@ def parse_refs(ref_res):
         content = decoded_body[index:index + length - 4].decode("utf-8")
         print(f"Content: {content}")
         index += length - 4
+        print(f"Index: {index}")
         
         if "HEAD" in content or "refs/" in content:
             parts = content.split(" ")
