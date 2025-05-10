@@ -129,12 +129,13 @@ def fetch_pack_file(git_url):
                         break
                     ref_res.extend(data)
                     
-                print(f"Reference Discovery Response: {ref_res.encode("utf-8")}")
+                print(f"Reference Discovery Response: {ref_res}")
                 
                 refs = parse_refs(ref_res)
                 head_sha = refs["HEAD"]
                 
-                want_line = f"0054want {head_sha} multi_ack side-band-64k ofs-delta\n"
+                want_line_content = f"want {head_sha} multi_ack side-band-64k ofs-delta\n"
+                want_line = f"{len(want_line_content) + 4:04x}{want_line_content}"
                 done_line = f"0009done\n"
                 negotiation_request = want_line + done_line
                 client_secure_socket.sendall(negotiation_request.encode("utf-8"))
@@ -145,10 +146,10 @@ def fetch_pack_file(git_url):
                     if not data:
                         break
                     packfile_response.extend(data)
-                    
+                
                 print(f"Packfile Response: {packfile_response}")
     except (socket.error, ssl.SSLError) as e:
-        raise RuntimeError(f"Failed to send request to {host}:{port} - {e}")
+        raise RuntimeError(f"Failed to send request to {host}:{port} - {e}") from e
     
     return packfile_response
 
