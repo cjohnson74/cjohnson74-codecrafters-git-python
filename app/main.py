@@ -125,7 +125,7 @@ def fetch_pack_file(git_url):
         with socket.create_connection((host, port)) as client_socket:
             with context.wrap_socket(client_socket, server_hostname=host) as client_secure_socket:
                 negotiation_request = (
-                    f"POST {repo_path}.git/git-upload-pack HTTP/1.1\r\n"
+                    f"POST {repo_path}/git-upload-pack HTTP/1.1\r\n"
                     f"Host: {host}\r\n"
                     f"User-Agent: custom-git-client\r\n"
                     f"Accept: */*\r\n"
