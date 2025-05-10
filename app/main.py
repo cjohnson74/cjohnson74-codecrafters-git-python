@@ -110,13 +110,13 @@ def fetch_info_refs(git_url):
     context = ssl.create_default_context()
     client_socket = socket.create_connection((host, port))
     client_secure_socket = context.wrap_socket(client_socket, server_hostname=host)
-    request = {
+    request = (
         f"GET {repo_path}/info/refs?service=git-upload-pack HTTP/1.1\r\n"
         f"Host: {host}\r\n"
         f"User-Agent: custom-git-client"
         f"Accept: */*\r\n"
         f"Connection: close\r\n\r\n"
-    }
+    )
     client_secure_socket.sendall(request.encode("utf-8"))
     
     res = b""
