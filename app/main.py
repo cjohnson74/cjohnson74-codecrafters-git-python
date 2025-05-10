@@ -109,9 +109,21 @@ def pkt_line(content):
     return f"{length}{content}"
 
 def fetch_pack_file(head_sha, git_url):
+    """
+    Fetches the pack file from a remote Git repository.
+
+    Args:
+        head_sha (str): The SHA-1 hash of the HEAD commit to fetch.
+        git_url (str): The URL of the remote Git repository.
+
+    Returns:
+        None: The function sends a request to fetch the pack file and prints the response.
+    """
     host = "github.com"
     port = 443
-    repo_path = git_url.split(host)[1]
+    from urllib.parse import urlparse
+    parsed_url = urlparse(git_url)
+    repo_path = parsed_url.path
     
     body = pkt_line(f"want {head_sha}\n")
     print(f"pkt_line: {body}")
@@ -122,22 +134,22 @@ def fetch_pack_file(head_sha, git_url):
             with context.wrap_socket(client_socket, server_hostname=host) as client_secure_socket:
                 request = (
                     f"POST .git/git-upload-pack"
-                    f"Host: {host}\r\n"
+                    f"Accept: */*\r\n"
                     f"User-Agent: custom-git-client\r\n"
-                    f"Acept: */*\r\n"
-                    f"Content-Type: application/x-git-upload-pack-request"
-                    f"Content-Length: {len(body)}"
+                    f"Accept: */*\r\n"
+                    f"Content-Type: application/x-git-upload-pack-request\r\n"
+                    f"Content-Length: {len(body)}\r\n"
                     f"Connection: close\r\n\r\n"
                 )
-                request = request.encode("utf-8") + body
+                request = request.encode("utf-8") + body.encode("utf-8")
                 client_secure_socket.sendall(request)
                 
-                res = b""
+                res = bytearray()
                 while True:
                     data = client_secure_socket.recv(4096)
                     if not data:
                         break
-                    res += data
+                    res.extend(data)
     except (socket.error, ssl.SSLError) as e:
         raise RuntimeError(f"Failed to send request to {host}:{port} - {e}")
     
@@ -162,13 +174,12 @@ def fetch_head_sha(git_url):
                 )
                 client_secure_socket.sendall(request.encode("utf-8"))
                 
-                res = b""
+                res = bytearray()
                 while True:
                     data = client_secure_socket.recv(4096)
                     if not data:
                         break
-                    res += data
-
+                    res.extend(data)
     except (socket.error, ssl.SSLError) as e:
         raise RuntimeError(f"Failed to send request to {host}:{port} - {e}")
     
