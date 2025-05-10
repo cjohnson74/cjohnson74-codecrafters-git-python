@@ -253,7 +253,7 @@ def save_pack_file(pack_file_res):
     return packfile_path
     
 def unpack_packfile(packfile_path):
-    with open(packfile_path, "wb") as file:
+    with open(packfile_path, "rb") as file:
         packfile_data = file.read()
         packfile_data = zlib.decompress(packfile_data)
         print(f"Packfile Data: {packfile_data}")
