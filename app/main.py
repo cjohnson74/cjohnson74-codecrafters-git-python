@@ -104,28 +104,28 @@ def write_commit(tree_sha, parent_commit_sha, commit_message):
 
 def send_git_request(host, port, repo_path, body=None):
     context = ssl.create_default_context()
-    try:
-        with socket.create_connection((host, port)) as client_socket:
-            with context.wrap_socket(client_socket, server_hostname=host) as secure_socket:
-                request = (
-                    f"GET {repo_path}/info/refs?service=git-upload-pack HTTP/1.1\r\n"
-                    f"Host: {host}\r\n"
-                    f"User-Agent: custom-git-client\r\n"
-                    f"Accept: */*\r\n"
-                    f"Connection: close\r\n\r\n"
-                    f"{body}" if body is not None else ""
-                )
-                secure_socket.sendall(request.encode("utf-8"))
-                
-                res = b""
-                while True:
-                    data = secure_socket.recv(4096)
-                    if not data:
-                        break
-                    res += data
-        return res
-    except (socket.error, ssl.SSLError) as e:
-        raise RuntimeError(f"Failed to send request to {host}:{port} - {e}")
+    # try:
+    with socket.create_connection((host, port)) as client_socket:
+        with context.wrap_socket(client_socket, server_hostname=host) as client_secure_socket:
+            request = (
+                f"GET {repo_path}/info/refs?service=git-upload-pack HTTP/1.1\r\n"
+                f"Host: {host}\r\n"
+                f"User-Agent: custom-git-client\r\n"
+                f"Accept: */*\r\n"
+                f"Connection: close\r\n\r\n"
+                f"{body}" if body is not None else ""
+            )
+            client_secure_socket.sendall(request.encode("utf-8"))
+            
+            res = b""
+            while True:
+                data = client_secure_socket.recv(4096)
+                if not data:
+                    break
+                res += data
+    return res
+    # except (socket.error, ssl.SSLError) as e:
+    #     raise RuntimeError(f"Failed to send request to {host}:{port} - {e}")
 
 def pkt_line(content):
     len_content = len(content).encode("utf-8")
