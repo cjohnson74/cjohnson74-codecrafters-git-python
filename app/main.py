@@ -90,42 +90,67 @@ def write_tree(directory):
 def write_commit(tree_sha, parent_commit_sha, commit_message):
     current_time = datetime.now()
     data = []
-    data.append(f"tree {tree_sha}")
-    data.append(f"parent {parent_commit_sha}")
-    data.append(f"author {USER_NAME} <{USER_EMAIL}> {int(current_time.timestamp())} {str(current_time.astimezone().tzinfo)}")
-    data.append(f"committer {USER_NAME} <{USER_EMAIL}> {int(current_time.timestamp())} {str(current_time.astimezone().tzinfo)}")
-    data.append('')
-    data.append(commit_message)
-    data.append('')
-    data = "\n".join(data).encode("utf-8")
+    data = (
+        f"tree {tree_sha}\n"
+        f"parent {parent_commit_sha}\n"
+        f"author {USER_NAME} <{USER_EMAIL}> {int(current_time.timestamp())} {str(current_time.astimezone().tzinfo)}\n"
+        f"committer {USER_NAME} <{USER_EMAIL}> {int(current_time.timestamp())} {str(current_time.astimezone().tzinfo)}\n"
+        ""
+        f"{commit_message}"
+        ""
+    ).encode("utf-8")
     commit_sha = hash_object(data, obj_type="commit", write=True)
     return commit_sha
 
-# def fetch_pack(head_sha):
+def send_git_request(host, port, repo_path, body=None):
+    context = ssl.create_default_context()
+    try:
+        with socket.create_connection((host, port)) as client_socket:
+            with context.wrap_socket(client_socket, server_hostname=host) as secure_socket:
+                request = (
+                    f"GET {repo_path}/info/refs?service=git-upload-pack HTTP/1.1\r\n"
+                    f"Host: {host}\r\n"
+                    f"User-Agent: custom-git-client\r\n"
+                    f"Accept: */*\r\n"
+                    f"Connection: close\r\n\r\n"
+                    f"{body}" if body is not None else ""
+                )
+                secure_socket.sendall(request.encode("utf-8"))
+                
+                response = b""
+                while True:
+                    data = secure_socket.recv(4096)
+                    if not data:
+                        break
+                    response += data
+        return response
+    except (socket.error, ssl.SSLError) as e:
+        raise RuntimeError(f"Failed to send request to {host}:{port} - {e}")
+
+def pkt_line(content):
+    len_content = len(content).encode("utf-8")
+    print(f"binary_len: {repr(len_content)}")
+
+def fetch_pack_file(head_sha, git_url):
+    host = "github.com"
+    port = 443
+    repo_path = git_url.split(host)[1]
+    
+    pkt_line(f"want {head_sha}\n")
+    
+    # body=""
+    # send_git_request(host, port, repo_path, body)
+    
+    
+    
+    
 
 def fetch_head_sha(git_url):
     host = "github.com"
     port = 443
     repo_path = git_url.split(host)[1]
     
-    context = ssl.create_default_context()
-    with socket.create_connection((host, port)) as client_socket:
-        with context.wrap_socket(client_socket, server_hostname=host) as client_secure_socket:
-            request = (
-                f"GET {repo_path}/info/refs?service=git-upload-pack HTTP/1.1\r\n"
-                f"Host: {host}\r\n"
-                f"User-Agent: custom-git-client"
-                f"Accept: */*\r\n"
-                f"Connection: close\r\n\r\n"
-            )
-            client_secure_socket.sendall(request.encode("utf-8"))
-            
-            res = b""
-            while True:
-                data = client_secure_socket.recv(4096)
-                if not data:
-                    break
-                res += data
+    res = send_git_request(host, port, repo_path)
                 
     headers, _, body = res.partition(b"\r\n\r\n")
     body = body.decode("utf-8")
@@ -135,6 +160,7 @@ def fetch_head_sha(git_url):
 def clone_repo(git_url, dir):
     head_sha = fetch_head_sha(git_url)
     print(f"head_sha: {head_sha}")
+    pack_file = fetch_pack_file(head_sha, git_url)
     
 
 def main():
