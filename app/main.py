@@ -238,11 +238,12 @@ def parse_refs(ref_res):
     return refs
 
 def save_pack_file(pack_file_res):
-    headers, _, body = pack_file_res.partition(b"/r/n/r/n")
-    print(f"HTTP Headers: {headers}")
-    # print(f"Packfile Res: {pack_file_res[pack_file_res.index(b"PACK"):]}")
+    # headers, _, body = pack_file_res.partition(b"/r/n/r/n")
+    # print(f"HTTP Headers: {headers}")
+    print(f"Packfile Res: {pack_file_res[pack_file_res.index(b"PACK"):]}")
     packfile_data = pack_file_res.split(b"PACK", 1)[1]
     packfile_data = b"PACK" + packfile_data
+    packfile_data = zlib.decompress(packfile_data)
     packfile_dir = f"{os.curdir}/packfile/"
     
     os.makedirs(packfile_dir, exist_ok=True)
