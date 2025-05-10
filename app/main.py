@@ -118,31 +118,16 @@ def fetch_pack_file(git_url):
     host = parsed_url.netloc
     repo_path = parsed_url.path
     
-    initial_request = f"git-upload-pack {repo_path}\0host={host}\0\0version=1\0"
-    length = len(initial_request) + 4  # Add 4 bytes for the length prefix
-    initial_request = f"{length:04x}{initial_request}"
-    print(f"Initial Request: {initial_request}")
+    ref_res = get_refs(port, host, repo_path)
+    refs = parse_refs(ref_res)
+    head_sha = refs["HEAD"]
+    
+    negotiation_request = construct_negotiation_request(head_sha)
     
     context = ssl.create_default_context()
     try:
         with socket.create_connection((host, port)) as client_socket:
             with context.wrap_socket(client_socket, server_hostname=host) as client_secure_socket:
-                client_secure_socket.sendall(initial_request.encode("utf-8"))
-                
-                ref_res = bytearray()
-                while True:
-                    data = client_secure_socket.recv(4096)
-                    if not data:
-                        break
-                    ref_res.extend(data)
-                
-                print(f"References Response: {ref_res}")
-                
-                refs = parse_refs(ref_res)
-                head_sha = refs["HEAD"]
-                
-                negotiation_request = construct_negotiation_request(head_sha)
-                
                 client_secure_socket.sendall(negotiation_request.encode("utf-8"))
                 
                 packfile_response = bytearray()
@@ -150,8 +135,7 @@ def fetch_pack_file(git_url):
                     data = client_secure_socket.recv(4096)
                     if not data:
                         break
-                    packfile_response.extend(data)
-                
+                    packfile_response.extend(data)                
     except (socket.error, ssl.SSLError) as e:
         raise RuntimeError(f"Failed to send request to {host}:{port} - {e}") from e
     
