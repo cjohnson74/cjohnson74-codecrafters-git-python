@@ -103,7 +103,7 @@ def write_commit(tree_sha, parent_commit_sha, commit_message):
     commit_sha = hash_object(data, obj_type="commit", write=True)
     return commit_sha
 
-def fetch_pack_file(head_sha, git_url):
+def fetch_pack_file(git_url):
     port = 443
     parsed_url = urlparse(git_url)
     host = parsed_url.netloc
@@ -208,9 +208,7 @@ def parse_refs(ref_res):
     return refs
 
 def clone_repo(git_url, dir):
-    head_sha = fetch_head_sha(git_url)
-    print(f"head_sha: {head_sha}")
-    pack_file = fetch_pack_file(head_sha, git_url)
+    pack_file = fetch_pack_file(git_url)
     # save_pack_file(pack_file)
     
 
