@@ -140,7 +140,7 @@ def fetch_pack_file(git_url):
                 negotiation_request = want_line + done_line
                 print(f"Negotiation Request: {negotiation_request}")
                 negotiation_request = (
-                    f"POST {repo_path}/info/refs?service=git-upload-pack HTTP/1.1\r\n"
+                    f"POST {repo_path}/git-upload-pack HTTP/1.1\r\n"
                     f"Host: {host}\r\n"
                     f"User-Agent: custom-git-client\r\n"
                     f"Accept: */*\r\n"
