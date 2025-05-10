@@ -106,7 +106,7 @@ def clone_repo(git_url, dir):
     host = "github.com"
     url_request = f"{git_url}/info/refs"
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect((git_url, 80))
+    client_socket.connect((host, 80))
     
     request = f"GET {url_request[url_request.index(".com"):]}?service=git-upload-pack HTTP/1.1\r\n"
     # request += f"HOST: {host}\r\n"
