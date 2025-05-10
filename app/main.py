@@ -256,7 +256,7 @@ def save_pack_file(pack_file_res):
 def unpack_packfile(packfile_path):
     with open(packfile_path, "rb") as file:
         packfile_data = file.read()
-        print(f"Packfile Data: {packfile_data}")
+        # print(f"Packfile Data: {packfile_data}")
 
 def clone_repo(git_url, dir):
     pack_file_res = fetch_pack_file(git_url)
