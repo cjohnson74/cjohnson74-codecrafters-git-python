@@ -176,6 +176,8 @@ def get_refs(port, host, repo_path):
     except (socket.error, ssl.SSLError) as e:
         raise RuntimeError(f"Failed to send request to {host}:{port} - {e}") from e
     
+    return ref_res
+    
 def decode_body(body):
     decoded_body = b""
     while body:
