@@ -116,11 +116,12 @@ def clone_repo(git_url, dir):
     res = b""
     while True:
         data = client_socket.recv(4096)
+        print(data.decode("utf-8"))
         if not data:
             break
-        response += data
+        res += data
     
-    print(response.decode())
+    print(res.decode("utf-8"))
     client_socket.close()
     
 
