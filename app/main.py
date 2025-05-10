@@ -5,6 +5,7 @@ import zlib
 import hashlib
 from datetime import datetime
 import socket
+from urllib.parse import urlparse
 
 USER_NAME="cjohnson74"
 USER_EMAIL="cjohnson74.tech@gmail.com"
@@ -121,11 +122,10 @@ def fetch_pack_file(head_sha, git_url):
     """
     host = "github.com"
     port = 443
-    from urllib.parse import urlparse
     parsed_url = urlparse(git_url)
     repo_path = parsed_url.path
     
-    body = pkt_line(f"want {head_sha}\x0a") + pkt_line(f"00000009 done\x0a")
+    body = pkt_line(f"want {head_sha}\x0a") + f"00000009 done\x0a"
     print(f"pkt_line: {body}")
     
     context = ssl.create_default_context()
@@ -133,7 +133,7 @@ def fetch_pack_file(head_sha, git_url):
         with socket.create_connection((host, port)) as client_socket:
             with context.wrap_socket(client_socket, server_hostname=host) as client_secure_socket:
                 request = (
-                    f"POST .git/git-upload-pack"
+                    f"POST {repo_path}.git/git-upload-pack"
                     f"Accept: */*\r\n"
                     f"User-Agent: custom-git-client\r\n"
                     f"Accept: */*\r\n"
@@ -170,7 +170,6 @@ def fetch_head_sha(git_url):
                     f"User-Agent: custom-git-client\r\n"
                     f"Accept: */*\r\n"
                     f"Connection: close\r\n\r\n"
-                    # f"{body}" if body is not None else ""
                 )
                 client_secure_socket.sendall(request.encode("utf-8"))
                 
