@@ -242,7 +242,7 @@ def save_pack_file(pack_file_res):
 
 def parse_object(packfile_data):
     first_byte = packfile_data[0]
-    print(f"First Byte: {bin(first_byte)[2:]} -> {bin(first_byte >> 4)[2:]} -> {bin((first_byte >> 4) & 0b111)[2:]}")
+    print(f"First Byte: {bin(first_byte)[2:]} -> {bin(first_byte >> 4)[2:]} -> {bin((first_byte) & 0b111)[2:]}")
     obj_type = (first_byte >> 4) & 0b111
     size = first_byte & 0b1111
 
