@@ -239,24 +239,24 @@ def save_pack_file(pack_file_res):
     
     print(f"Packfile saved to {packfile_path}")
     return packfile_path
-    
+
+def parse_object(packfile_data):
+    first_byte = packfile_data[0]
+    print(f"First Byte: {repr(first_byte)} -> {(first_byte >> 4)} -> {(first_byte >> 4) & 0b111}")
+    obj_type = (first_byte >> 4) & 0b111
+    size = first_byte & 0b1111
+
 def unpack_packfile(packfile_path):
     with open(packfile_path, "rb") as file:
         packfile_data = file.read()
     
     version = int.from_bytes(packfile_data[4:8])
-    print(f"Version: {version}")
-    num_of_objects = int.from_bytes(packfile_data[8:12])
-    print(f"Number of Objects: {num_of_objects}")
+    object_count = int.from_bytes(packfile_data[8:12])
     
     packfile_data = packfile_data[12:]
-    
-    # for _ in range(num_of_objects):
-    #     n_bytes = 
-    #     type = 
-    #     length = 
-    
-    
+    for i in range(object_count):
+        obj_type, obj_size, obj_data, packfile_data = parse_object(packfile_data)
+      
 
 def clone_repo(git_url, dir):
     pack_file_res = fetch_pack_file(git_url)
