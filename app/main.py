@@ -245,7 +245,7 @@ def parse_object(packfile_data):
     first_byte = packfile_data[0]
     obj_type = int((first_byte >> 4) & 0b111)
     size = int(first_byte & 0b1111)
-    print(f"Type: {type}, Size: {size}")
+    print(f"Type: {obj_type}, Size: {size}")
 
 def unpack_packfile(packfile_path):
     with open(packfile_path, "rb") as file:
