@@ -243,7 +243,7 @@ def save_pack_file(pack_file_res):
 def parse_object(packfile_data):
     first_byte = packfile_data[0]
     obj_type = int((first_byte >> 4) & 0b111)
-    size = byte & 0b1111
+    size = first_byte & 0b1111
     
     traverse_index = 0
     total_obj_size = []
