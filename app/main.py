@@ -9,6 +9,14 @@ from urllib.parse import urlparse
 
 USER_NAME="cjohnson74"
 USER_EMAIL="cjohnson74.tech@gmail.com"
+GIT_OBJECT_TYPES = {
+    "1": "COMMIT",
+    "2": "TREE",
+    "3": "BLOB",
+    "4": "TAG",
+    "6": "OFS_DELTA",
+    "7": "REF_DELTA"
+}
 
 def read_blob_object(sha):
     folder = sha[:2]
@@ -242,24 +250,20 @@ def save_pack_file(pack_file_res):
 
 def parse_object(packfile_data):
     first_byte = packfile_data[0]
-    obj_type = int((first_byte >> 4) & 0b111)
+    obj_type = (first_byte >> 4) & 0b111
+    obj_type_name = GIT_OBJECT_TYPES.get(str(obj_type), "UNKNOWN")
+    
     size = first_byte & 0b1111
     
-    traverse_index = 0
-    total_obj_size = []
-    while True:
-        byte = packfile_data[traverse_index]
-        total_obj_size.append(byte & 0b1111111)
-        msb = (byte >> 7) & 0b1
+    traverse_index = 1
+    shift = 4
+    while first_byte & 0b10000000:
+        first_byte = packfile_data[traverse_index]
+        size |= (first_byte & 0b01111111) << shift
+        shift += 7
         traverse_index += 1
-        if msb == 0:
-            break
-    
-    for i, partial_size in enumerate(total_obj_size):
-        size = int(size | (partial_size << (7*i)))
-           
-    packfile_data = packfile_data[traverse_index:]
-    print(f"Type: {obj_type}, Size: {size}")
+        
+    return obj_type_name, size, packfile_data[traverse_index:]
 
 def unpack_packfile(packfile_path):
     with open(packfile_path, "rb") as file:
@@ -269,7 +273,8 @@ def unpack_packfile(packfile_path):
     
     packfile_data = packfile_data[12:]
     for i in range(object_count):
-        obj_type, obj_size, obj_data, packfile_data = parse_object(packfile_data)
+        obj_type, obj_size, packfile_data = parse_object(packfile_data)
+        print(f"Type: {obj_type}, Size: {obj_size}")
       
 
 def clone_repo(git_url, dir):
