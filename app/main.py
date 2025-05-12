@@ -282,7 +282,7 @@ def unpack_packfile(packfile_path):
         obj_type, obj_size, packfile_data = parse_object(packfile_data)
         sha_ref = packfile_data[:20]
         packfile_data = packfile_data[20:]
-        print(f"Type: {obj_type}, Size: {obj_size}, Sha1: {sha_ref}")
+        print(f"Type: {obj_type}, Size: {obj_size}, Sha1: {repr(sha_ref)}")
       
 
 def clone_repo(git_url, dir):
