@@ -262,9 +262,11 @@ def parse_object(packfile_data):
     shift = 4
     while first_byte & 0b10000000:
         first_byte = packfile_data[traverse_index]
-        print(f"Next byte: {first_byte:08b}")
+        if traverse_index < 30:
+            print(f"Next byte: {first_byte:08b}")
         size |= (first_byte & 0b01111111) << shift
-        print(f"Updated size: {size}")
+        if traverse_index < 30:
+            print(f"Updated size: {size}")
         shift += 7
         traverse_index += 1
         
