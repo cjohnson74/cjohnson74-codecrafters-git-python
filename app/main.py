@@ -250,21 +250,21 @@ def save_pack_file(pack_file_res):
 
 def parse_object(packfile_data):
     first_byte = packfile_data[0]
-    print(f"First byte: {first_byte:08b}")
+    # print(f"First byte: {first_byte:08b}")
     obj_type = (first_byte >> 4) & 0b111
     obj_type_name = GIT_OBJECT_TYPES.get(str(obj_type), "UNKNOWN")
-    print(f"Object type: {obj_type_name} ({obj_type})")
+    # print(f"Object type: {obj_type_name} ({obj_type})")
     
     size = first_byte & 0b1111
-    print(f"Initial size: {size}")
+    # print(f"Initial size: {size}")
     
     traverse_index = 1
     shift = 4
     while first_byte & 0b10000000:
         first_byte = packfile_data[traverse_index]
-        print(f"Next byte: {first_byte:08b}")
+        # print(f"Next byte: {first_byte:08b}")
         size |= (first_byte & 0b01111111) << shift
-        print(f"Updated size: {size}")
+        # print(f"Updated size: {size}")
         shift += 7
         traverse_index += 1
         
