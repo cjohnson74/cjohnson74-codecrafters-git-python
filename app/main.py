@@ -242,15 +242,28 @@ def save_pack_file(pack_file_res):
 
 def parse_object(packfile_data):
     first_byte = packfile_data[0]
-    print(f"{str(first_byte)}")
     obj_type = int((first_byte >> 4) & 0b111)
-    size = int(first_byte & 0b1111)
+    size = byte & 0b1111
+    
+    traverse_index = 0
+    total_obj_size = []
+    while True:
+        byte = packfile_data[traverse_index]
+        total_obj_size.append(byte & 0b1111111)
+        msb = (byte >> 7) & 0b1
+        traverse_index += 1
+        if msb == 0:
+            break
+    
+    for i, partial_size in enumerate(total_obj_size):
+        size = int(size | (partial_size << (7*i)))
+           
+    packfile_data = packfile_data[traverse_index:]
     print(f"Type: {obj_type}, Size: {size}")
 
 def unpack_packfile(packfile_path):
     with open(packfile_path, "rb") as file:
         packfile_data = file.read()
-    
     version = int.from_bytes(packfile_data[4:8])
     object_count = int.from_bytes(packfile_data[8:12])
     
