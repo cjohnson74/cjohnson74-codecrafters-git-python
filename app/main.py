@@ -279,7 +279,7 @@ def unpack_packfile(packfile_path):
     packfile_data = packfile_data[12:]
     for i in range(object_count):
         obj_type, obj_size, packfile_data = parse_object(packfile_data)
-        print(f"Type: {obj_type}, Size: {obj_size}")
+        # print(f"Type: {obj_type}, Size: {obj_size}")
       
 
 def clone_repo(git_url, dir):
