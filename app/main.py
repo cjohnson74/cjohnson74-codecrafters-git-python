@@ -277,7 +277,7 @@ def unpack_packfile(packfile_path):
     object_count = int.from_bytes(packfile_data[8:12])
     
     packfile_data = packfile_data[12:]
-    print(packfile_data[20:])
+    print(packfile_data[:20])
     for i in range(object_count):
         obj_type, obj_size, packfile_data = parse_object(packfile_data)
         # print(f"Type: {obj_type}, Size: {obj_size}")
