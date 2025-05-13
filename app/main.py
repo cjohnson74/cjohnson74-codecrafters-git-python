@@ -329,6 +329,7 @@ def unpack_packfile(packfile_path):
                 print("REF_DELTA")
                 # return get_ref_delta_obj(obj_size)
         
+        packfile_data = packfile_data[obj_size:]
         
       
 
