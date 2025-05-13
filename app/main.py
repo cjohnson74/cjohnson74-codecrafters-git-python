@@ -292,6 +292,7 @@ def get_ref_delta_obj(obj_size):
 
 def process_commit(obj_size, packfile_data):
     obj_data = packfile_data[:obj_size]
+    print(f"Raw Commit Object Data (hex): {obj_data.hex()}")
     try:
         obj_data = zlib.decompress(obj_data).decode("utf-8")
     except zlib.error:
