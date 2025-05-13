@@ -273,10 +273,9 @@ def parse_object(packfile_data):
     # print(f"Initial size: {size}")
     obj_size, packfile_data = get_extended_size(first_byte, size, packfile_data)
     
-    sha_ref = packfile_data[:20]
     packfile_data = packfile_data[20:]
     
-    return obj_type_name, obj_size, sha_ref, packfile_data
+    return obj_type_name, obj_size, packfile_data
 
 def get_ref_delta_obj(obj_size):
     first_byte = packfile_data[0]
@@ -299,25 +298,11 @@ def process_commit(obj_data):
 def get_obj_data(obj_type, obj_size, packfile_data):
     obj_data = packfile_data[:obj_size]
     print(f"Commit Object Data: {obj_data}")
-    hash_object(obj_data, obj_type)
+    sha = hash_object(obj_data, obj_type)
     obj_data = zlib.decompress(obj_data)
     print(f"Commit Object Data (decompressed): {obj_data}")
     
-    match obj_type:
-        case "COMMIT":
-            print("COMMIT")
-            # process_commit(obj_data)
-        case "TREE":
-            print("TREE")
-        case "BLOB":
-            print("BLOB")
-        case "TAG":
-            print("BLOB")
-        case "OFS_DELTA":
-            print("OFS_DELTA")
-        case "REF_DELTA":
-            print("REF_DELTA")
-            # return get_ref_delta_obj(obj_size)
+    
             
     return obj_data, packfile_data[:obj_size]
     
@@ -330,12 +315,24 @@ def unpack_packfile(packfile_path):
     packfile_data = packfile_data[12:]
     print(packfile_data)
     for i in range(object_count):
-        obj_type, obj_size, sha_ref, packfile_data = parse_object(packfile_data)
+        obj_type, obj_size, packfile_data = parse_object(packfile_data)
+        print(f"Type: {obj_type}, Size: {obj_size}")
         
-        print(f"Type: {obj_type}, Size: {obj_size}, Sha1: {repr(sha_ref)}")
-        
-        
-        
+        match obj_type:
+            case "COMMIT":
+                print("COMMIT")
+                # process_commit(obj_data)
+            case "TREE":
+                print("TREE")
+            case "BLOB":
+                print("BLOB")
+            case "TAG":
+                print("BLOB")
+            case "OFS_DELTA":
+                print("OFS_DELTA")
+            case "REF_DELTA":
+                print("REF_DELTA")
+                # return get_ref_delta_obj(obj_size)        
         obj_data, packfile_data = get_obj_data(obj_type, obj_size, packfile_data)
         
         
