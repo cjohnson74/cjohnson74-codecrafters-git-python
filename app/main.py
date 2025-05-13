@@ -249,31 +249,28 @@ def save_pack_file(pack_file_res):
     print(f"Packfile saved to {packfile_path}")
     return packfile_path
 
-def get_extended_size(size, sizebyte, packfile_data):
-    traverse_index = 1
+def get_extended_size(size, packfile_data):
+    index = 1
     shift = 4
-    while sizebyte & 0b10000000:
-        sizebyte = packfile_data[traverse_index]
+    while packfile_data[index - 1] & 0b10000000:
         # print(f"Next byte: {sizebyte:08b}")
-        size |= (sizebyte & 0b01111111) << shift
+        size |= (packfile_data[index] & 0b01111111) << shift
         # print(f"Updated size: {size}")
         shift += 7
-        traverse_index += 1
+        index += 1
     
-    return size, packfile_data[traverse_index:]
+    return size, packfile_data[index:]
 
 def parse_object(packfile_data):
     first_byte = packfile_data[0]
     # print(f"First byte: {first_byte:08b}")
     obj_type = (first_byte >> 4) & 0b111
     obj_type_name = GIT_OBJECT_TYPES.get(str(obj_type), "UNKNOWN")
-    # print(f"Object type: {obj_type_name} ({obj_type})")
+    print(f"Object type: {obj_type_name} ({obj_type}), Size: {size}")
     
     size = first_byte & 0b1111
     # print(f"Initial size: {size}")
-    obj_size, packfile_data = get_extended_size(first_byte, size, packfile_data)
-    
-    packfile_data = packfile_data[20:]
+    obj_size, packfile_data = get_extended_size(size, packfile_data)
     
     return obj_type_name, obj_size, packfile_data
 
@@ -310,12 +307,12 @@ def unpack_packfile(packfile_path):
         packfile_data = file.read()
     version = int.from_bytes(packfile_data[4:8])
     object_count = int.from_bytes(packfile_data[8:12])
+    print(f"Packfile Version: {version}, Object Count: {object_count}")
     
     packfile_data = packfile_data[12:]
     print(packfile_data)
     for i in range(object_count):
         obj_type, obj_size, packfile_data = parse_object(packfile_data)
-        print(f"Type: {obj_type}, Size: {obj_size}")
         
         match obj_type:
             case "COMMIT":
