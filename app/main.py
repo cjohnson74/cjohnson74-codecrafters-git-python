@@ -298,7 +298,7 @@ def process_commit(obj_data):
 
 def get_obj_data(obj_type, obj_size, packfile_data):
     obj_data = packfile_data[:obj_size]
-    print(f"Commit Object Data: {repr(obj_data)}")
+    print(f"Commit Object Data: {obj_data}")
     obj_data = zlib.decompress(obj_data)
     print(f"Commit Object Data (decompressed): {obj_data}")
     
