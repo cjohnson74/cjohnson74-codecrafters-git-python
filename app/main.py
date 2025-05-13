@@ -266,12 +266,11 @@ def parse_object(packfile_data):
     # print(f"First byte: {first_byte:08b}")
     obj_type = (first_byte >> 4) & 0b111
     obj_type_name = GIT_OBJECT_TYPES.get(str(obj_type), "UNKNOWN")
-    print(f"Object type: {obj_type_name} ({obj_type}), Size: {size}")
     
     size = first_byte & 0b1111
-    # print(f"Initial size: {size}")
     obj_size, packfile_data = get_extended_size(size, packfile_data)
     
+    print(f"Object type: {obj_type_name} ({obj_type}), Size: {obj_size}")
     return obj_type_name, obj_size, packfile_data
 
 def get_ref_delta_obj(obj_size):
