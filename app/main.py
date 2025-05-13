@@ -276,7 +276,7 @@ def parse_object(packfile_data):
     sha_ref = packfile_data[:20]
     packfile_data = packfile_data[20:]
     
-    return obj_type_name, int.from_bytes(obj_size), sha_ref, packfile_data
+    return obj_type_name, obj_size, sha_ref, packfile_data
 
 def get_ref_delta_obj(obj_size):
     first_byte = packfile_data[0]
