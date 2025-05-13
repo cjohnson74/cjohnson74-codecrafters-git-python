@@ -291,40 +291,34 @@ def get_ref_delta_obj(obj_size):
     print(f"Ref Source Size: {ref_source_size}, Ref Target Size: {ref_target_size}")
     
 
-def process_commit(obj_size, packfile_data):
-    obj_data = packfile_data[obj_size:]
-    print(f"Commit Object Data: {obj_data}")
-    obj_data = zlib.decompress(obj_data)
-    print(f"Commit Object Data (decompressed): {obj_data}")
+def process_commit(obj_data):
     write_commit(tree_sha, parent_commit_sha, commit_message)
     
     
 
 def get_obj_data(obj_type, obj_size, packfile_data):
+    obj_data = packfile_data[:obj_size]
+    print(f"Commit Object Data: {obj_data}")
+    obj_data = zlib.decompress(obj_data)
+    print(f"Commit Object Data (decompressed): {obj_data}")
+    
     match obj_type:
         case "COMMIT":
-            process_commit(obj_size, packfile_data)
-            
-            break
+            print("COMMIT")
+            # process_commit(obj_data)
         case "TREE":
-            break
+            print("TREE")
         case "BLOB":
-            break
+            print("BLOB")
         case "TAG":
-            break
+            print("BLOB")
         case "OFS_DELTA":
-            break
+            print("OFS_DELTA")
         case "REF_DELTA":
-            return get_ref_delta_obj(obj_size)
+            print("REF_DELTA")
+            # return get_ref_delta_obj(obj_size)
             
-    
-    first_byte = packfile_data[0]
-    size = first_byte & 0b01111111
-    ref_source_size, packfile_data = get_extended_size(first_byte, size, packfile_data)
-    
-    first_byte = packfile_data[0]
-    size = first_byte & 0b01111111
-    ref_target_size, packfile_data = get_extended_size(first_byte, size, packfile_data)
+    return obj_data, packfile_data[:obj_size]
     
 def unpack_packfile(packfile_path):
     with open(packfile_path, "rb") as file:
@@ -337,7 +331,7 @@ def unpack_packfile(packfile_path):
     for i in range(object_count):
         obj_type, obj_size, sha_ref, packfile_data = parse_object(packfile_data)
         
-        obj_data = get_obj_data(obj_type, obj_size, packfile_data)
+        obj_data, packfile_data = get_obj_data(obj_type, obj_size, packfile_data)
         
         print(f"Type: {obj_type}, Size: {obj_size}, Sha1: {repr(sha_ref)}, Ref Source Size: {ref_source_size}, Ref Target Size: {ref_target_size}")
       
