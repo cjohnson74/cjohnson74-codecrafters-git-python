@@ -295,7 +295,7 @@ def process_commit(obj_size, packfile_data):
         print(f"Decompression Error: {e}")
         raise ValueError("Failed to decompress commit object data")
     
-    # print(f"Commit Object Data: {obj_data_decoded}")
+    print(f"Commit Object Data: {obj_data_decoded}")
     
     commit_sha = hash_object(obj_data, obj_type="commit")
     
