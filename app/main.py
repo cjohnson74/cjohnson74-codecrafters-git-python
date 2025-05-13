@@ -290,12 +290,12 @@ def process_commit(obj_size, packfile_data):
     obj_data = packfile_data[:obj_size]
     print(f"Raw Commit Object Data (hex): {obj_data.hex()}")
     try:
-        obj_data = zlib.decompress(obj_data).decode("utf-8")
+        obj_data_decoded = zlib.decompress(obj_data).decode("utf-8")
     except zlib.error as e:
         print(f"Decompression Error: {e}")
         raise ValueError("Failed to decompress commit object data")
     
-    print(f"Commit Object Data: {repr(obj_data)}")
+    print(f"Commit Object Data: {obj_data_decoded}")
     
     commit_sha = hash_object(obj_data, obj_type="commit")
     
@@ -305,13 +305,14 @@ def process_tree(obj_size, packfile_data):
     obj_data = packfile_data[:obj_size]
     print(f"Raw Tree Object Data (hex): {obj_data.hex()}")
     try:
-        obj_data = zlib.decompress(obj_data).decode("utf-8")
+        obj_data_decoded = zlib.decompress(obj_data).decode("utf-8")
     except zlib.error as e:
         print(f"Decompression Error: {e}")
         raise ValueError("Failed to decompress commit object data")
     
-    print(f"Tree Object Data: {obj_data}")
+    print(f"Tree Object Data: {obj_data_decoded}")
     
+    hash_object(obj_data, obj_type="tree")
     working_dir = os.getcwd()
     tree_sha = write_tree(working_dir)
     
