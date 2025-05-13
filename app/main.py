@@ -259,7 +259,7 @@ def get_extended_size(size, packfile_data):
         shift += 7
         index += 1
     
-    return size, packfile_data[index:]
+    return int.from_bytes(size, byteorder="big"), packfile_data[index:]
 
 def parse_object(packfile_data):
     first_byte = packfile_data[0]
