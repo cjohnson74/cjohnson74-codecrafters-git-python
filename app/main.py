@@ -331,9 +331,11 @@ def unpack_packfile(packfile_path):
     for i in range(object_count):
         obj_type, obj_size, sha_ref, packfile_data = parse_object(packfile_data)
         
+        print(f"Type: {obj_type}, Size: {obj_size}, Sha1: {repr(sha_ref)}")
+        
         obj_data, packfile_data = get_obj_data(obj_type, obj_size, packfile_data)
         
-        print(f"Type: {obj_type}, Size: {obj_size}, Sha1: {repr(sha_ref)}, Ref Source Size: {ref_source_size}, Ref Target Size: {ref_target_size}")
+        
       
 
 def clone_repo(git_url, dir):
