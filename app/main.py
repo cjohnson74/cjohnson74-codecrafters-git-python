@@ -273,7 +273,7 @@ def parse_object(packfile_data):
     # print(f"Initial size: {size}")
     obj_size, packfile_data = get_extended_size(first_byte, size, packfile_data)
     
-    sha_ref = packfile_data[:20]
+    sha_ref = packfile_data[:20].hex()
     packfile_data = packfile_data[20:]
     
     return obj_type_name, obj_size, sha_ref, packfile_data
