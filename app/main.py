@@ -324,9 +324,8 @@ def unpack_packfile(packfile_path):
     version = int.from_bytes(packfile_data[4:8])
     object_count = int.from_bytes(packfile_data[8:12])
     print(f"Packfile Version: {version}, Object Count: {object_count}")
-    
     packfile_data = packfile_data[12:]
-    # print(packfile_data)
+
     for i in range(object_count):
         obj_type, obj_size, packfile_data = parse_object(packfile_data)
         
