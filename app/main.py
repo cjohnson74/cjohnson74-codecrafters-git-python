@@ -260,7 +260,7 @@ def get_extended_size(size, sizebyte, packfile_data):
         shift += 7
         traverse_index += 1
     
-    return int.from_bytes(size), packfile_data[traverse_index:]
+    return size, packfile_data[traverse_index:]
 
 def parse_object(packfile_data):
     first_byte = packfile_data[0]
