@@ -1,4 +1,5 @@
 import ssl
+import struct
 import sys
 import os
 import zlib
@@ -248,6 +249,19 @@ def save_pack_file(pack_file_res):
     print(f"Packfile saved to {packfile_path}")
     return packfile_path
 
+def get_extended_size(size, sizebyte, packfile_data):
+    traverse_index = 1
+    shift = 4
+    while sizebyte & 0b10000000:
+        sizebyte = packfile_data[traverse_index]
+        # print(f"Next byte: {sizebyte:08b}")
+        size |= (sizebyte & 0b01111111) << shift
+        # print(f"Updated size: {size}")
+        shift += 7
+        traverse_index += 1
+    
+    return int.from_bytes(size), packfile_data[traverse_index:]
+
 def parse_object(packfile_data):
     first_byte = packfile_data[0]
     # print(f"First byte: {first_byte:08b}")
@@ -257,19 +271,61 @@ def parse_object(packfile_data):
     
     size = first_byte & 0b1111
     # print(f"Initial size: {size}")
+    obj_size, packfile_data = get_extended_size(first_byte, size, packfile_data)
     
-    traverse_index = 1
-    shift = 4
-    while first_byte & 0b10000000:
-        first_byte = packfile_data[traverse_index]
-        # print(f"Next byte: {first_byte:08b}")
-        size |= (first_byte & 0b01111111) << shift
-        # print(f"Updated size: {size}")
-        shift += 7
-        traverse_index += 1
-        
-    return obj_type_name, size, packfile_data[traverse_index:]
+    sha_ref = packfile_data[:20]
+    packfile_data = packfile_data[20:]
+    
+    return obj_type_name, int.from_bytes(obj_size), sha_ref, packfile_data
 
+def get_ref_delta_obj(obj_size):
+    first_byte = packfile_data[0]
+    size = first_byte & 0b01111111
+    ref_source_size, packfile_data = get_extended_size(first_byte, size, packfile_data)
+    
+    
+    first_byte = packfile_data[0]
+    size = first_byte & 0b01111111
+    ref_target_size, packfile_data = get_extended_size(first_byte, size, packfile_data)
+    
+    print(f"Ref Source Size: {ref_source_size}, Ref Target Size: {ref_target_size}")
+    
+
+def process_commit(obj_size, packfile_data):
+    obj_data = packfile_data[obj_size:]
+    print(f"Commit Object Data: {obj_data}")
+    obj_data = zlib.decompress(obj_data)
+    print(f"Commit Object Data (decompressed): {obj_data}")
+    write_commit(tree_sha, parent_commit_sha, commit_message)
+    
+    
+
+def get_obj_data(obj_type, obj_size, packfile_data):
+    match obj_type:
+        case "COMMIT":
+            process_commit(obj_size, packfile_data)
+            
+            break
+        case "TREE":
+            break
+        case "BLOB":
+            break
+        case "TAG":
+            break
+        case "OFS_DELTA":
+            break
+        case "REF_DELTA":
+            return get_ref_delta_obj(obj_size)
+            
+    
+    first_byte = packfile_data[0]
+    size = first_byte & 0b01111111
+    ref_source_size, packfile_data = get_extended_size(first_byte, size, packfile_data)
+    
+    first_byte = packfile_data[0]
+    size = first_byte & 0b01111111
+    ref_target_size, packfile_data = get_extended_size(first_byte, size, packfile_data)
+    
 def unpack_packfile(packfile_path):
     with open(packfile_path, "rb") as file:
         packfile_data = file.read()
@@ -279,10 +335,11 @@ def unpack_packfile(packfile_path):
     packfile_data = packfile_data[12:]
     print(packfile_data[:20])
     for i in range(object_count):
-        obj_type, obj_size, packfile_data = parse_object(packfile_data)
-        sha_ref = packfile_data[:20]
-        packfile_data = packfile_data[20:]
-        print(f"Type: {obj_type}, Size: {obj_size}, Sha1: {repr(sha_ref)}")
+        obj_type, obj_size, sha_ref, packfile_data = parse_object(packfile_data)
+        
+        obj_data = get_obj_data(obj_type, obj_size, packfile_data)
+        
+        print(f"Type: {obj_type}, Size: {obj_size}, Sha1: {repr(sha_ref)}, Ref Source Size: {ref_source_size}, Ref Target Size: {ref_target_size}")
       
 
 def clone_repo(git_url, dir):
