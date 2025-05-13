@@ -303,7 +303,7 @@ def process_commit(obj_size, packfile_data):
 
 def process_tree(obj_size, packfile_data):
     obj_data = packfile_data[:obj_size]
-    print(f"Raw Tree Object Data (hex): {obj_data.hex()}")
+    # print(f"Raw Tree Object Data (hex): {obj_data.hex()}")
     try:
         obj_data_decoded = zlib.decompress(obj_data).decode("utf-8")
     except zlib.error as e:
