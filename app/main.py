@@ -339,7 +339,7 @@ def unpack_packfile(packfile_path):
             case "BLOB":
                 print("BLOB")
             case "TAG":
-                print("BLOB")
+                print("TAG")
             case "OFS_DELTA":
                 print("OFS_DELTA")
             case "REF_DELTA":
