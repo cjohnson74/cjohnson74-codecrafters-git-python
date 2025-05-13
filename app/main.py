@@ -321,8 +321,8 @@ def process_tree(obj_size, packfile_data):
 def unpack_packfile(packfile_path):
     with open(packfile_path, "rb") as file:
         packfile_data = file.read()
-    version = int.from_bytes(packfile_data[4:8])
-    object_count = int.from_bytes(packfile_data[8:12])
+    version = int.from_bytes(packfile_data[4:8], byteorder="big")
+    object_count = int.from_bytes(packfile_data[8:12], byteorder="big")
     print(f"Packfile Version: {version}, Object Count: {object_count}")
     packfile_data = packfile_data[12:]
 
