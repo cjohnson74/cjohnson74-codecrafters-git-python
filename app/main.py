@@ -292,8 +292,13 @@ def get_ref_delta_obj(obj_size):
 
 def process_commit(obj_size, packfile_data):
     obj_data = packfile_data[:obj_size]
-    print(f"Commit Object Data: {obj_data.decode("utf-8")}")
-    write_object_to_disk(obj_data)
+    try:
+        obj_data = zlib.decompress(obj_data).decode("utf-8")
+    except zlib.error:
+        raise ValueError("Failed to decompress commit object data")
+    
+    print(f"Commit Object Data: {obj_data}")
+    # write_object_to_disk(obj_data)
     # obj_data = zlib.decompress(obj_data)
     # print(f"Commit Object Data (decompressed): {obj_data}")
 
