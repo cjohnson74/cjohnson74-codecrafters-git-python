@@ -295,7 +295,8 @@ def process_commit(obj_size, packfile_data):
     print(f"Raw Commit Object Data (hex): {obj_data.hex()}")
     try:
         obj_data = zlib.decompress(obj_data).decode("utf-8")
-    except zlib.error:
+    except zlib.error as e:
+        print(f"Decompression Error: {e}")
         raise ValueError("Failed to decompress commit object data")
     
     print(f"Commit Object Data: {obj_data}")
