@@ -290,21 +290,13 @@ def get_ref_delta_obj(obj_size):
     print(f"Ref Source Size: {ref_source_size}, Ref Target Size: {ref_target_size}")
     
 
-def process_commit(obj_data):
-    write_commit(tree_sha, parent_commit_sha, commit_message)
-    
-    
-
-def get_obj_data(obj_type, obj_size, packfile_data):
+def process_commit(obj_size, packfile_data):
     obj_data = packfile_data[:obj_size]
-    print(f"Commit Object Data: {obj_data}")
-    sha = hash_object(obj_data, obj_type)
-    obj_data = zlib.decompress(obj_data)
-    print(f"Commit Object Data (decompressed): {obj_data}")
-    
-    
-            
-    return obj_data, packfile_data[:obj_size]
+    print(f"Commit Object Data: {obj_data.decode("utf-8")}")
+    write_object_to_disk(obj_data)
+    # obj_data = zlib.decompress(obj_data)
+    # print(f"Commit Object Data (decompressed): {obj_data}")
+
     
 def unpack_packfile(packfile_path):
     with open(packfile_path, "rb") as file:
@@ -321,7 +313,7 @@ def unpack_packfile(packfile_path):
         match obj_type:
             case "COMMIT":
                 print("COMMIT")
-                # process_commit(obj_data)
+                process_commit(obj_size, packfile_data)
             case "TREE":
                 print("TREE")
             case "BLOB":
@@ -332,8 +324,7 @@ def unpack_packfile(packfile_path):
                 print("OFS_DELTA")
             case "REF_DELTA":
                 print("REF_DELTA")
-                # return get_ref_delta_obj(obj_size)        
-        obj_data, packfile_data = get_obj_data(obj_type, obj_size, packfile_data)
+                # return get_ref_delta_obj(obj_size)
         
         
       
