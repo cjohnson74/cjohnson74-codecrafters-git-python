@@ -111,12 +111,8 @@ def parse_copy_instruction(obj_data):
     
     return offset, size, obj_data
 
-def apply_delta(delta_data, source_size, target_size):
+def apply_delta(delta_data, base_data, source_size, target_size):
     target_data = bytearray()
-    with open(f".git/objects/{sha[:2]/sha[2:]}", "rb") as file:
-        base_data = zlib.decompress(file.read())
-        obj_type, base_data = base_data.split("\0", 1)
-            
     while delta_data:
         instruction_byte = delta_data[0]
         delta_data = delta_data[1:]
@@ -147,7 +143,7 @@ def process_ref_deltas(ref_deltas, packfile_data):
     for (obj_type, delta_data) in ref_deltas:
         if obj_type == "OFS_DELTA":
             base_offset, delta_data = get_extended_size(0, delta_data)
-            base_start = len() - base_offset
+            base_start = len(packfile_data) - base_offset
             base_data = extract_object_at_offset(packfile_data, base_start)
         elif obj_type == "REF_DELTA":
             base_sha, delta_data = delta_data[:20], delta_data[20:]
@@ -156,8 +152,8 @@ def process_ref_deltas(ref_deltas, packfile_data):
         source_size, delta_data = get_extended_size(0, delta_data)
         target_size, delta_data = get_extended_size(0, delta_data)
         
-        reconstructed_data = apply_delta(delta_data, source_size, target_size)
-        return hash_object(reconstructed_data, obj_type)
+        reconstructed_data = apply_delta(delta_data, base_data, source_size, target_size)
+        return hash_object(reconstructed_data, obj_type="blob")
 
 def unpack_packfile(packfile_path):
     with open(packfile_path, "rb") as file:
@@ -179,8 +175,7 @@ def unpack_packfile(packfile_path):
             hash_object(obj_data, obj_type)
         elif obj_data in ["OFS_DELTA", "REF_DELTA"]:
             delta_data = packfile_data[:obj_size]
-            decompressor.flush()
-            ref_deltas.append((obj_type, obj_data))
+            ref_deltas.append((obj_type, delta_data))
         else:
             raise ValueError(f"Unknown object type: {obj_type}")
         
