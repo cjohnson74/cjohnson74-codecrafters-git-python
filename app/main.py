@@ -1,7 +1,5 @@
 import sys
-import os
-import zlib
-from commands import init_repo, cat_file, hash_object_command, ls_tree, write_tree_command, commit_tree, clone_command
+from app.commands import init_repo, cat_file, hash_object_command, ls_tree, write_tree_command, commit_tree, clone_command
 
 def main():
     commands = {
