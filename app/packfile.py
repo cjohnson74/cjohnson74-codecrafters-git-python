@@ -1,7 +1,7 @@
 import os
 import zlib
-from objects import hash_object, write_tree, read_tree_object
-from network import fetch_pack_file
+from app.objects import hash_object, write_tree, read_tree_object
+from app.network import fetch_pack_file
 
 GIT_OBJECT_TYPES = {
     "1": "COMMIT",

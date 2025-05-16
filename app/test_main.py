@@ -2,8 +2,8 @@ import os
 import unittest
 from unittest.mock import patch, mock_open, MagicMock
 from app.commands import clone_repo
-from objects import read_tree_object
-from packfile import fetch_pack_file, save_pack_file, unpack_packfile
+from app.objects import read_tree_object
+from app.packfile import fetch_pack_file, save_pack_file, unpack_packfile
 
 class TestCloneRepo(unittest.TestCase):
     @patch("os.makesirs")

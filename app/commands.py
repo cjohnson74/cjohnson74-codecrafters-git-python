@@ -1,7 +1,7 @@
 import os
 import sys
-from objects import read_blob_object, write_tree, write_commit, hash_object, read_tree_object
-from packfile import clone_repo
+from app.objects import read_blob_object, write_tree, write_commit, hash_object, read_tree_object
+from app.packfile import clone_repo
 
 def init_repo():
     os.mkdir(".git")
