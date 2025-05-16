@@ -111,26 +111,53 @@ def parse_copy_instruction(obj_data):
     
     return offset, size, obj_data
 
-def process_ref_deltas(ref_deltas):
-    for (sha, obj_data) in ref_deltas:
-        source_size, obj_data = get_extended_size(0, obj_data)
-        target_size, obj_data = get_extended_size(0, obj_data)
-        target_obj_data = b""
+def apply_delta(delta_data, source_size, target_size):
+    target_data = bytearray()
+    with open(f".git/objects/{sha[:2]/sha[2:]}", "rb") as file:
+        base_data = zlib.decompress(file.read())
+        obj_type, base_data = base_data.split("\0", 1)
+            
+    while delta_data:
+        instruction_byte = delta_data[0]
+        delta_data = delta_data[1:]
         
-        with open(f".git/objects/{sha[:2]/sha[2:]}", "rb") as file:
-            existing_obj_data = zlib.decompress(file.read())
-            obj_type, data = existing_obj_data.split("\0", 1)
+        if instruction_byte & 0b10000000:
+            offset, size, delta_data = parse_copy_instruction(delta_data)
+            target_data += base_data[offset:offset + size]
+        else:
+            size = instruction_byte & 0b01111111
+            target_data += delta_data[:size]
+            delta_data = delta_data[size:]
+    
+    return bytes(target_data)
+
+def extract_object_at_offset(packfile_data, offset):
+    obj_type, obj_size, obj_data = parse_object(packfile_data[offset:])
+    decompressor = zlib.decompressobj()
+    return decompressor.decompress(obj_data[:obj_size])
+
+def retrieve_object_by_sha(sha):
+    sha_hex = sha.hex()
+    object_path = f".git/objects/{sha_hex[:2]}/{sha_hex[2:]}"
+    with open(object_path, "rb") as file:
+        compressed_data = file.read()
+    return zlib.decompress(compressed_data)
+
+def process_ref_deltas(ref_deltas, packfile_data):
+    for (obj_type, delta_data) in ref_deltas:
+        if obj_type == "OFS_DELTA":
+            base_offset, delta_data = get_extended_size(0, delta_data)
+            base_start = len() - base_offset
+            base_data = extract_object_at_offset(packfile_data, base_start)
+        elif obj_type == "REF_DELTA":
+            base_sha, delta_data = delta_data[:20], delta_data[20:]
+            base_data = retrieve_object_by_sha(base_sha)
         
-        while obj_data:
-            instruction_byte = obj_data[0]
-            if instruction_byte & 0b10000000:
-                offset, size, obj_data = parse_copy_instruction(obj_data)
-                target_obj_data += existing_obj_data[offset:offset+size]
-            else:
-                size = instruction_byte & 0b01111111
-                target_obj_data += existing_obj_data[1:size]
-                
-        return hash_object(target_obj_data, obj_type)
+        source_size, delta_data = get_extended_size(0, delta_data)
+        target_size, delta_data = get_extended_size(0, delta_data)
+        
+        reconstructed_data = apply_delta(delta_data, source_size, target_size)
+        return hash_object(reconstructed_data, obj_type)
 
 def unpack_packfile(packfile_path):
     with open(packfile_path, "rb") as file:
@@ -150,15 +177,15 @@ def unpack_packfile(packfile_path):
             obj_data = decompressor.decompress(packfile_data, obj_size)
             decompressor.flush()
             hash_object(obj_data, obj_type)
-        else:
-            delta_sha, packfile_data = packfile_data[:20], packfile_data[20:]
+        elif obj_data in ["OFS_DELTA", "REF_DELTA"]:
             obj_data = decompressor.decompress(packfile_data, obj_size)
             decompressor.flush()
-            ref_deltas.append((delta_sha.hex(), obj_data))
+            ref_deltas.append((obj_type, obj_data))
+        else:
+            raise ValueError(f"Unknown object type: {obj_type}")
         
-        packfile_data = decompressor.unused_data
-        
-        process_ref_deltas(ref_deltas)
+        packfile_data = packfile_data[obj_size:]
+        process_ref_deltas(ref_deltas, packfile_data)
         
 def checkout_tree(tree_sha, dir):
     entries = read_tree_object(tree_sha)
