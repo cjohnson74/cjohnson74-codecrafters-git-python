@@ -173,7 +173,7 @@ def unpack_packfile(packfile_path):
         
         decompressor = zlib.decompressobj()
         if obj_type in ["COMMIT", "TREE", "BLOB"]:
-            print(f"Object Type: {obj_type}")
+            print(f"Object Type: {obj_type}, Object Size: {obj_size}")
             obj_data = decompressor.decompress(packfile_data, obj_size)
             decompressor.flush()
             hash_object(obj_data, obj_type)
