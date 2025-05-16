@@ -151,8 +151,8 @@ def process_ref_deltas(ref_deltas, packfile_data):
         
         source_size, delta_data = get_extended_size(0, delta_data)
         target_size, delta_data = get_extended_size(0, delta_data)
-        
         reconstructed_data = apply_delta(delta_data, base_data, source_size, target_size)
+        
         return hash_object(reconstructed_data, obj_type="blob")
 
 def unpack_packfile(packfile_path):
@@ -180,7 +180,8 @@ def unpack_packfile(packfile_path):
             raise ValueError(f"Unknown object type: {obj_type}")
         
         packfile_data = packfile_data[obj_size:]
-        process_ref_deltas(ref_deltas, packfile_data)
+    
+    process_ref_deltas(ref_deltas, packfile_data)
         
 def checkout_tree(tree_sha, dir):
     entries = read_tree_object(tree_sha)
