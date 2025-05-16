@@ -159,16 +159,15 @@ def unpack_packfile(packfile_path):
         decompressor = zlib.decompressobj()
         if obj_type in ["COMMIT", "TREE", "BLOB"]:
             print(f"Object Type: {obj_type}, Object Size: {obj_size}")
-            obj_data = decompressor.decompress(packfile_data, max_length=obj_size)
+            obj_data = decompressor.decompress(packfile_data)
             decompressor.flush()
             hash_object(obj_data, obj_type)
+            packfile_data = decompressor.unused_data
         else:
             delta_sha, packfile_data = packfile_data[:20], packfile_data[20:]
-            delta_data = decompressor.decompress(packfile_data, max_length=obj_size)
-            decompressor.flush()
+            delta_data = packfile_data[:obj_size]
             ref_deltas.append((delta_sha, delta_data))
-        
-        packfile_data = decompressor.unused_data
+            packfile_data = packfile_data[obj_size:]
     
     process_ref_deltas(ref_deltas, packfile_data)
         
