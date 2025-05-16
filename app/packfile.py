@@ -119,10 +119,10 @@ def apply_delta(delta_data, base_data, source_size, target_size):
         
         if instruction_byte & 0b10000000:
             offset, size, delta_data = parse_copy_instruction(delta_data)
-            target_data += base_data[offset:offset + size]
+            target_data.append(base_data[offset:offset + size])
         else:
             size = instruction_byte & 0b01111111
-            target_data += delta_data[:size]
+            target_data.append(delta_data[:size])
             delta_data = delta_data[size:]
     
     return bytes(target_data)
@@ -132,25 +132,17 @@ def extract_object_at_offset(packfile_data, offset):
     decompressor = zlib.decompressobj()
     return decompressor.decompress(obj_data[:obj_size])
 
-def retrieve_object_by_sha(sha):
-    sha_hex = sha.hex()
-    object_path = f".git/objects/{sha_hex[:2]}/{sha_hex[2:]}"
-    with open(object_path, "rb") as file:
-        compressed_data = file.read()
-    return zlib.decompress(compressed_data)
-
 def process_ref_deltas(ref_deltas, packfile_data):
-    for (obj_type, delta_data) in ref_deltas:
-        if obj_type == "OFS_DELTA":
-            base_offset, delta_data = get_extended_size(0, delta_data)
-            base_start = len(packfile_data) - base_offset
-            base_data = extract_object_at_offset(packfile_data, base_start)
-        elif obj_type == "REF_DELTA":
-            base_sha, delta_data = delta_data[:20], delta_data[20:]
-            base_data = retrieve_object_by_sha(base_sha)
-        
+    for (delta_sha, delta_data) in ref_deltas:
         source_size, delta_data = get_extended_size(0, delta_data)
         target_size, delta_data = get_extended_size(0, delta_data)
+        target_content = b""
+        
+        with open(f".git/objects/{delta_sha[:2]}/{delta_sha[2:]}", "rb") as file:
+            base_data = zlib.decompress(file.read())
+            base_head, base_content = base_data.split(b"\0", 1)
+            base_type, base_size = base_head.split(b" ")
+        
         reconstructed_data = apply_delta(delta_data, base_data, source_size, target_size)
         
         return hash_object(reconstructed_data, obj_type="blob")
@@ -170,16 +162,16 @@ def unpack_packfile(packfile_path):
         decompressor = zlib.decompressobj()
         if obj_type in ["COMMIT", "TREE", "BLOB"]:
             print(f"Object Type: {obj_type}, Object Size: {obj_size}")
-            obj_data = decompressor.decompress(packfile_data[:obj_size])
+            obj_data = decompressor.decompress(packfile_data, max_length=obj_size)
             decompressor.flush()
             hash_object(obj_data, obj_type)
-        elif obj_data in ["OFS_DELTA", "REF_DELTA"]:
-            delta_data = packfile_data[:obj_size]
-            ref_deltas.append((obj_type, delta_data))
         else:
-            raise ValueError(f"Unknown object type: {obj_type}")
+            delta_sha, packfile_data = packfile_data[:20], packfile_data[20:]
+            delta_data = decompressor.decompress(packfile_data, max_length=obj_size)
+            decompressor.flush()
+            ref_deltas.append((delta_sha, delta_data))
         
-        packfile_data = packfile_data[obj_size:]
+        packfile_data = decompressor.unused_data
     
     process_ref_deltas(ref_deltas, packfile_data)
         
