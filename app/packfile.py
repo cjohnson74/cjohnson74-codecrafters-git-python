@@ -136,12 +136,9 @@ def process_ref_deltas(ref_deltas, packfile_data):
     for (delta_sha, delta_data) in ref_deltas:
         source_size, delta_data = get_extended_size(0, delta_data)
         target_size, delta_data = get_extended_size(0, delta_data)
-        target_content = b""
         
         with open(f".git/objects/{delta_sha[:2]}/{delta_sha[2:]}", "rb") as file:
             base_data = zlib.decompress(file.read())
-            base_head, base_content = base_data.split(b"\0", 1)
-            base_type, base_size = base_head.split(b" ")
         
         reconstructed_data = apply_delta(delta_data, base_data, source_size, target_size)
         
