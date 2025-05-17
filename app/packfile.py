@@ -174,7 +174,7 @@ def unpack_packfile(packfile_path):
             obj_data = decompressor.decompress(packfile_data)
             packfile_data = decompressor.unused_data
             hash_object(obj_data, obj_type)
-        else:
+        elif "REF_DELTA":
             delta_sha, packfile_data = packfile_data[:20].hex(), packfile_data[20:]
             decompressor = zlib.decompressobj()
             delta_data = decompressor.decompress(packfile_data)
