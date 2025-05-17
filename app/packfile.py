@@ -167,19 +167,18 @@ def unpack_packfile(packfile_path):
         print(f"Parsing object {i + 1}/{object_count}...")
         obj_type, obj_size, packfile_data = parse_object(packfile_data)
         
-        decompressor = zlib.decompressobj()
         if obj_type in ["COMMIT", "TREE", "BLOB"]:
             print(f"Object Type: {obj_type}, Object Size: {obj_size}")
+            decompressor = zlib.decompressobj()
             print(f"Decompressing object: Type={obj_type}, Size={obj_size}, Data={packfile_data[:20].hex()}")
-            obj_data = decompressor.decompress(packfile_data[:obj_size])
-            decompressor.flush()
+            obj_data = decompressor.decompress(packfile_data, obj_size)
             hash_object(obj_data, obj_type)
+            packfile_data = decompressor.unused_data
         else:
             delta_sha, packfile_data = packfile_data[:20], packfile_data[20:]
             delta_data = packfile_data[:obj_size]
             ref_deltas.append((delta_sha, delta_data))
-        
-        packfile_data = packfile_data[obj_size:]
+            packfile_data = packfile_data[obj_size:]
 
     print("Processing reference deltas...")
     process_ref_deltas(ref_deltas, packfile_data)
