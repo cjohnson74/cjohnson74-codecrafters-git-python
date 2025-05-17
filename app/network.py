@@ -60,6 +60,7 @@ def parse_refs(ref_res):
             continue
         
         length = int(length_hex, 16)
+        print(f"Length: {length}")
         if length == 0:
             break
         
