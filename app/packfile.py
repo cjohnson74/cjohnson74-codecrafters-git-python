@@ -157,8 +157,8 @@ def unpack_packfile(packfile_path):
     print(f"Unpacking packfile at {packfile_path}...")
     with open(packfile_path, "rb") as file:
         packfile_data = file.read()
-    version = int.from_bytes(packfile_data[4:8], byteorder="big")
-    object_count = int.from_bytes(packfile_data[8:12], byteorder="big")
+    version = int.from_bytes(packfile_data[4:8], byteorder="little")
+    object_count = int.from_bytes(packfile_data[8:12], byteorder="little")
     print(f"Packfile Version: {version}, Object Count: {object_count}")
     packfile_data = packfile_data[12:]
 
