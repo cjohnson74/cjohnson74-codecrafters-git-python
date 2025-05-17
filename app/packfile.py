@@ -172,6 +172,7 @@ def unpack_packfile(packfile_path):
             decompressor = zlib.decompressobj()
             print(f"Decompressing object: Type={obj_type}, Size={obj_size}, Data={packfile_data[:20].hex()}")
             obj_data = decompressor.decompress(packfile_data, obj_size)
+            decompressor.flush()
             hash_object(obj_data, obj_type)
             packfile_data = decompressor.unused_data
         else:
