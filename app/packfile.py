@@ -175,7 +175,7 @@ def unpack_packfile(packfile_path):
             packfile_data = decompressor.unused_data
             hash_object(obj_data, obj_type)
         else:
-            delta_sha, packfile_data = packfile_data[:20], packfile_data[20:]
+            delta_sha, packfile_data = packfile_data[:20].hex(), packfile_data[20:]
             decompressor = zlib.decompressobj()
             delta_data = decompressor.decompress(packfile_data)
             packfile_data = decompressor.unused_data
