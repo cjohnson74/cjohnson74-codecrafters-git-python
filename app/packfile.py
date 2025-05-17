@@ -14,16 +14,14 @@ GIT_OBJECT_TYPES = {
 
 def get_extended_size(initial_size, packfile_data):
     size = initial_size
-    index = 0
-    shift = 0
+    index = 1
+    shift = 4
     
-    while True:
+    while packfile_data[index - 1] & 0b10000000:
         byte = packfile_data[index]
-        index += 1
         size |= (byte & 0b01111111) << shift
-        if not (byte & 0b10000000):
-            break
         shift += 7
+        index += 1
     
     return size, packfile_data[index:]
 
@@ -34,7 +32,7 @@ def parse_object(packfile_data):
     obj_type_name = GIT_OBJECT_TYPES.get(str(obj_type), "UNKNOWN")
     
     initial_size = first_byte & 0b1111
-    obj_size, packfile_data = get_extended_size(initial_size, packfile_data[1:])
+    obj_size, packfile_data = get_extended_size(initial_size, packfile_data)
     
     print(f"Object type: {obj_type_name} ({obj_type}), Size: {obj_size}")
     return obj_type_name, obj_size, packfile_data
