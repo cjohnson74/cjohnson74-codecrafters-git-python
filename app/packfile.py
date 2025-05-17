@@ -177,7 +177,7 @@ def unpack_packfile(packfile_path):
             packfile_data = decompressor.unused_data
         else:
             delta_sha, packfile_data = packfile_data[:20], packfile_data[20:]
-            delta_data = packfile_data[:obj_size]
+            delta_data = packfile_data[:obj_size-20]
             ref_deltas.append((delta_sha, delta_data))
             packfile_data = packfile_data[obj_size:]
 
