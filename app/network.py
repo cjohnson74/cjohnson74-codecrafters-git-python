@@ -92,6 +92,7 @@ def fetch_pack_file(git_url):
     repo_path = parsed_url.path
     
     ref_res = get_refs(port, host, repo_path)
+    print(f"{ref_res}")
     refs = parse_refs(ref_res)
     head_sha = refs["HEAD"]
     
