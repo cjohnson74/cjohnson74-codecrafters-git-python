@@ -122,7 +122,9 @@ def fetch_pack_file(git_url):
                     data = client_secure_socket.recv(4096)
                     if not data:
                         break
-                    packfile_response.extend(data)   
+                    packfile_response.extend(data)  
+                
+                print(f"Packfile Response: {packfile_response}") 
                                
     except (socket.error, ssl.SSLError) as e:
         raise RuntimeError(f"Failed to send request to {host}:{port} - {e}") from e
