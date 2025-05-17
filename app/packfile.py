@@ -174,12 +174,12 @@ def unpack_packfile(packfile_path):
             obj_data = decompressor.decompress(packfile_data[:obj_size])
             decompressor.flush()
             hash_object(obj_data, obj_type)
-            packfile_data = decompressor.unused_data
         else:
             delta_sha, packfile_data = packfile_data[:20], packfile_data[20:]
             delta_data = packfile_data[:obj_size]
             ref_deltas.append((delta_sha, delta_data))
-            packfile_data = packfile_data[obj_size:]
+        
+        packfile_data = packfile_data[obj_size:]
 
     print("Processing reference deltas...")
     process_ref_deltas(ref_deltas, packfile_data)
