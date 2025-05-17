@@ -53,6 +53,7 @@ def parse_refs(ref_res):
     
     while index < len(decoded_body):
         length_hex = decoded_body[index:index + 4].decode("utf-8")
+        print(f"Length Hex: {length_hex}")
         index += 4
         
         if length_hex == "0000":
